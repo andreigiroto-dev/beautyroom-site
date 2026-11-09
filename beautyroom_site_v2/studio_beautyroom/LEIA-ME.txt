@@ -1,0 +1,23 @@
+BEAUTY ROOM — projeto inicial
+=============================
+
+COMO EXECUTAR
+1. Extraia a pasta studio_beautyroom.
+2. Abra o arquivo index.html no navegador.
+3. Para editar, abra a pasta inteira no Visual Studio Code.
+
+ESTRUTURA
+- index.html: conteúdo e estrutura das seções.
+- css/style.css: cores, layout e responsividade.
+- js/script.js: menu mobile, ano automático e galeria ampliada.
+- assets/img/: fotografias e imagens da marca.
+
+PERSONALIZAÇÕES IMPORTANTES ANTES DE PUBLICAR
+1. Troque 5511999999999 nos links wa.me pelo WhatsApp correto, incluindo código do país e DDD.
+2. Substitua os arquivos banner.jpg e trabalho-01.jpg até trabalho-04.jpg pelas fotografias originais autorizadas da Beauty Room.
+3. Confira o endereço e o nome da profissional.
+4. O monograma BR no cabeçalho é provisório; substitua por logo oficial quando tiver o arquivo em boa resolução.
+
+OBSERVAÇÃO SOBRE AS FOTOS
+As imagens da galeria são arquivos locais esperados em assets/img. Coloque fotos com esses nomes para que apareçam. O banner também espera assets/img/banner.jpg.
+Não use capturas de tela do Instagram como foto final: prefira os arquivos originais, com autorização da profissional.
