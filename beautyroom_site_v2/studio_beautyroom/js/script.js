@@ -127,41 +127,57 @@ if (lightbox) {
   const modal = document.getElementById("bookingModal");
   if (!modal) return;
 
-  // Catálogo de procedimentos com valores e cálculo de sinal de 30%
+  // Catálogo de procedimentos com valores, duração e cálculo de sinal de 30%
   const SERVICES = {
     cilios: {
       name: "Extensão de Cílios",
       price: 160.00,
       sinal: 48.00,
-      duration: "2h00"
+      duration: "2h00",
+      durationHours: 2
     },
     sobrancelhas: {
       name: "Design de Sobrancelhas",
       price: 60.00,
       sinal: 18.00,
-      duration: "45min"
+      duration: "45min",
+      durationHours: 0.75
     },
     manutencao: {
       name: "Manutenção de Cílios",
       price: 100.00,
       sinal: 30.00,
-      duration: "1h30"
+      duration: "1h30",
+      durationHours: 1.5
     },
     combo: {
       name: "Combo Cílios + Sobrancelhas",
       price: 200.00,
       sinal: 60.00,
-      duration: "2h30"
+      duration: "2h30",
+      durationHours: 2.5
+    },
+    // [ITEM DE TESTE R$ 0,01 - REMOVER OU COMENTAR QUANDO FINALIZADO]
+    teste: {
+      name: "Procedimento de Teste (R$ 0,01)",
+      price: 0.01,
+      sinal: 0.01,
+      duration: "15min",
+      durationHours: 0.25
     }
   };
 
+  // URL do Webhook do Google Apps Script (Sincronização com Google Agenda da Dona)
+  const GOOGLE_CALENDAR_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwvzsILWQaxncYqGtIQKDyWtdxh5ThprmYxQh0BDfZomXolglT1KeBO-PqTJZA9Cw0EHQ/exec";
+
   // Configurações do PIX Oficial do Estúdio (Padrão BACEN BR Code)
   const PIX_CONFIG = {
-    key: "11984814153",       // Chave celular cadastrada no banco
-    name: "BEAUTY ROOM",     // Nome do beneficiário (sem acento, máx 25 chars)
-    city: "MAUA",            // Cidade do recebedor (sem acento, máx 15 chars)
+    key: "+5511984814153",       // Chave celular no padrão BACEN E.164 (+55 + DDD + Número)
+    whatsappPhone: "5511984814153", // Número para abertura do WhatsApp
+    name: "THAIS LEITE PESSOA", // Nome da titular como registrado no banco (sem acentos)
+    city: "MAUA",               // Cidade da conta bancária (sem acentos)
     phoneDisplay: "(11) 98481-4153",
-    beneficiaryDisplay: "Beauty Room"
+    beneficiaryDisplay: "Thais Leite Pessoa"
   };
 
   // Estado do agendamento
@@ -396,6 +412,7 @@ if (lightbox) {
   function selectDay(date) {
     state.selectedDate = date;
     state.selectedTime = null; // reseta horário ao trocar o dia
+    googleCalendarSynced = false; // permite nova sincronização caso o dia mude
     if (btnNextFromCal) btnNextFromCal.disabled = true;
 
     // Atualiza classe ativa no calendário
@@ -620,8 +637,80 @@ if (lightbox) {
     ].filter(Boolean).join("\n");
 
     if (btnWhatsAppConfirm) {
-      btnWhatsAppConfirm.href = `https://wa.me/55${PIX_CONFIG.key}?text=${encodeURIComponent(msg)}`;
+      btnWhatsAppConfirm.href = `https://wa.me/${PIX_CONFIG.whatsappPhone}?text=${encodeURIComponent(msg)}`;
     }
+
+    // Sincroniza o agendamento automaticamente com a Google Agenda da dona
+    syncWithGoogleCalendar();
+  }
+
+  // 8. Integração em Tempo Real com Google Agenda (Apps Script Webhook)
+  let isSyncingGoogleCalendar = false;
+  let googleCalendarSynced = false;
+
+  function syncWithGoogleCalendar() {
+    if (googleCalendarSynced || isSyncingGoogleCalendar) return;
+    if (!state.selectedDate || !state.selectedTime || !state.clientName) return;
+
+    isSyncingGoogleCalendar = true;
+
+    const service = SERVICES[state.serviceId] || SERVICES.cilios;
+    const d = state.selectedDate;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const isoDate = `${year}-${month}-${day}`;
+
+    const payload = {
+      date: isoDate,
+      time: state.selectedTime,
+      durationHours: service.durationHours || 2,
+      serviceName: service.name,
+      clientName: state.clientName,
+      clientPhone: state.clientPhone,
+      clientNotes: state.clientNotes || "",
+      priceTotal: service.price.toFixed(2).replace(".", ","),
+      sinalValue: service.sinal.toFixed(2).replace(".", ","),
+      balanceValue: (service.price - service.sinal).toFixed(2).replace(".", ",")
+    };
+
+    const statusEl = document.getElementById("pixAgendaStatus");
+    if (statusEl) {
+      statusEl.textContent = "⏳ Registrando na agenda...";
+      statusEl.className = "badge-agenda-synced badge-agenda-syncing";
+    }
+
+    fetch(GOOGLE_CALENDAR_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(() => {
+        googleCalendarSynced = true;
+        isSyncingGoogleCalendar = false;
+        if (statusEl) {
+          statusEl.textContent = "📅 Bloqueado na Google Agenda ✓";
+          statusEl.className = "badge-agenda-synced badge-agenda-done";
+        }
+        console.log("✓ Evento registrado com sucesso na Google Agenda da dona!");
+      })
+      .catch((err) => {
+        isSyncingGoogleCalendar = false;
+        if (statusEl) {
+          statusEl.textContent = "📅 Agendamento registrado";
+        }
+        console.warn("Aviso na sincronização com Google Agenda:", err);
+      });
+  }
+
+  // Botão do WhatsApp também garante o disparo caso ainda não tenha sido enviado
+  if (btnWhatsAppConfirm) {
+    btnWhatsAppConfirm.addEventListener("click", () => {
+      syncWithGoogleCalendar();
+    });
   }
 
   // Botão Copiar PIX Copia e Cola

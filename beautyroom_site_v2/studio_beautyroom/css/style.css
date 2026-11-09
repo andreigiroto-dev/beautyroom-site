@@ -807,6 +807,30 @@ h1 em,h2 em { color: var(--brown); font-weight: 400; }
   margin: 6px 0;
 }
 
+.badge-agenda-synced {
+  font-size: 9px;
+  background: rgba(30, 169, 82, 0.12);
+  color: #157937 !important;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  letter-spacing: .5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all .25s ease;
+}
+
+.badge-agenda-syncing {
+  background: rgba(189, 150, 94, 0.15);
+  color: var(--brown) !important;
+}
+
+.badge-agenda-done {
+  background: rgba(30, 169, 82, 0.14);
+  color: #12662e !important;
+}
+
 .line-total {
   font-size: 12px;
 }
