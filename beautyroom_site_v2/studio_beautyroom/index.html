@@ -134,6 +134,16 @@
           <p>Cuidados para manter seus cílios bonitos e o resultado sempre em dia.</p>
           <a href="#bookingModal" data-open-booking data-service="manutencao" aria-label="Agendar manutenção">Agendar <span>↗</span></a>
         </article>
+
+        <!-- [TESTE TEMPORÁRIO NA PÁGINA INICIAL - R$ 0,01] -->
+        <article class="service-card" style="border: 1px dashed var(--gold); background: rgba(189,150,94,0.08);">
+          <div class="service-number" style="color: #c06014;">TESTE</div>
+          <div class="service-symbol" style="color: #c06014;">🧪</div>
+          <h3>Teste de PIX (R$ 0,01)</h3>
+          <p>Clique aqui para testar o agendamento real na Google Agenda e a transferência PIX de 1 centavo.</p>
+          <a href="#bookingModal" data-open-booking data-service="teste" style="color: #c06014; font-weight: 700; border-color: #c06014;">Testar R$ 0,01 <span>↗</span></a>
+        </article>
+        <!-- [/TESTE TEMPORÁRIO] -->
       </div>
       <p class="small-note">Técnicas, disponibilidade e valores são confirmados diretamente no agendamento.</p>
     </section>
@@ -342,6 +352,24 @@
           </div>
 
           <div class="services-select-grid">
+            <!-- [INÍCIO: PROCEDIMENTO DE TESTE R$ 0,01 NO TOPO - REMOVER OU COMENTAR QUANDO TERMINAR] -->
+            <label class="service-option" data-service-id="teste" style="grid-column: 1 / -1;">
+              <input type="radio" name="bookingService" value="teste">
+              <div class="service-option-card" style="border: 2px dashed #c06014; background: rgba(230, 126, 34, 0.08);">
+                <div class="service-card-top">
+                  <span class="service-badge-pill" style="background: #c06014; color: #ffffff; font-weight: 700;">🧪 MODO DE TESTE (R$ 0,01)</span>
+                  <span class="service-icon">⚡</span>
+                </div>
+                <h4>Procedimento de Teste (PIX)</h4>
+                <p>Item temporário em destaque para validar a transferência PIX de 1 centavo e a Google Agenda.</p>
+                <div class="service-pricing-row">
+                  <div class="price-full">Total: <b>R$ 0,01</b></div>
+                  <div class="price-sinal-tag" style="background: #c06014;">Sinal: <b>R$ 0,01</b></div>
+                </div>
+              </div>
+            </label>
+            <!-- [FIM: PROCEDIMENTO DE TESTE NO TOPO] -->
+
             <!-- Opção 1: Extensão de Cílios -->
             <label class="service-option" data-service-id="cilios">
               <input type="radio" name="bookingService" value="cilios" checked>
@@ -409,24 +437,6 @@
                 </div>
               </div>
             </label>
-
-            <!-- [INÍCIO: PROCEDIMENTO DE TESTE R$ 0,01 - REMOVER OU COMENTAR QUANDO TERMINAR OS TESTES] -->
-            <label class="service-option" data-service-id="teste">
-              <input type="radio" name="bookingService" value="teste">
-              <div class="service-option-card" style="border: 1px dashed var(--gold); background: rgba(189, 150, 94, 0.08);">
-                <div class="service-card-top">
-                  <span class="service-badge-pill" style="background: rgba(216, 120, 30, 0.2); color: #c06014;">TESTE REAL</span>
-                  <span class="service-icon">🧪</span>
-                </div>
-                <h4>Procedimento de Teste (PIX)</h4>
-                <p>Item temporário para validar a transferência PIX e o bloqueio na Google Agenda.</p>
-                <div class="service-pricing-row">
-                  <div class="price-full">Total: <b>R$ 0,01</b></div>
-                  <div class="price-sinal-tag" style="background: #c06014;">Sinal: <b>R$ 0,01</b></div>
-                </div>
-              </div>
-            </label>
-            <!-- [FIM: PROCEDIMENTO DE TESTE] -->
           </div>
 
           <div class="booking-footer">
