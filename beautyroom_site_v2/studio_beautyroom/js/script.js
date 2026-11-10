@@ -275,6 +275,25 @@ if (lightbox) {
     }
   });
 
+  // Função de segurança: Sanitização rigorosa contra injeção de HTML / XSS
+  function sanitizeInput(str, maxLength = 100) {
+    if (typeof str !== "string") return "";
+    return str
+      .trim()
+      .slice(0, maxLength)
+      .replace(/[<>'"&/]/g, function (char) {
+        switch (char) {
+          case "<": return "&lt;";
+          case ">": return "&gt;";
+          case "'": return "&#39;";
+          case "\"": return "&quot;";
+          case "&": return "&amp;";
+          case "/": return "&#x2F;";
+          default: return "";
+        }
+      });
+  }
+
   // 2. Navegação entre Etapas (Stepper)
   function goToStep(stepNum) {
     // Validações antes de avançar
@@ -284,23 +303,28 @@ if (lightbox) {
     }
 
     if (stepNum === 4) {
-      const name = clientNameInput ? clientNameInput.value.trim() : "";
-      const phone = clientPhoneInput ? clientPhoneInput.value.trim() : "";
+      const rawName = clientNameInput ? clientNameInput.value : "";
+      const rawPhone = clientPhoneInput ? clientPhoneInput.value : "";
+      const rawNotes = clientNotesInput ? clientNotesInput.value : "";
 
-      if (!name) {
-        alert("Por favor, preencha o seu nome completo.");
+      const cleanName = sanitizeInput(rawName, 60);
+      const cleanPhone = rawPhone.replace(/[^\d()-\s]/g, "").trim().slice(0, 16);
+      const cleanNotes = sanitizeInput(rawNotes, 200);
+
+      if (!cleanName || cleanName.length < 3) {
+        alert("Por favor, preencha o seu nome completo (mínimo 3 caracteres).");
         if (clientNameInput) clientNameInput.focus();
         return;
       }
-      if (!phone || phone.length < 10) {
-        alert("Por favor, preencha seu WhatsApp com DDD.");
+      if (!cleanPhone || cleanPhone.replace(/\D/g, "").length < 10) {
+        alert("Por favor, preencha um número de WhatsApp válido com DDD.");
         if (clientPhoneInput) clientPhoneInput.focus();
         return;
       }
 
-      state.clientName = name;
-      state.clientPhone = phone;
-      state.clientNotes = clientNotesInput ? clientNotesInput.value.trim() : "";
+      state.clientName = cleanName;
+      state.clientPhone = cleanPhone;
+      state.clientNotes = cleanNotes;
 
       // Atualiza tela do PIX com os dados selecionados
       setupPixCheckout();
@@ -619,39 +643,44 @@ if (lightbox) {
       pixQrImg.src = qrUrl;
     }
 
-    // Mensagem formatada do WhatsApp com confirmação do sinal
+    // Mensagem formatada do WhatsApp com codificação UTF-8 100% limpa e sem distorção
     const msg = [
       "Olá! Realizei o agendamento no site da Beauty Room:",
       "",
-      `✨ *Procedimento:* ${service.name}`,
-      `📅 *Data e Horário:* ${formattedDate} às ${state.selectedTime}`,
-      `👤 *Cliente:* ${state.clientName}`,
-      `📱 *WhatsApp:* ${state.clientPhone}`,
-      state.clientNotes ? `📝 *Observação:* ${state.clientNotes}` : "",
+      `• *Procedimento:* ${service.name}`,
+      `• *Data e Horário:* ${formattedDate} às ${state.selectedTime}`,
+      `• *Cliente:* ${state.clientName}`,
+      `• *WhatsApp:* ${state.clientPhone}`,
+      state.clientNotes ? `• *Observação:* ${state.clientNotes}` : "",
       "",
-      `💰 *Valor Total:* R$ ${total.toFixed(2).replace(".", ",")}`,
-      `⭐ *Sinal de 30%:* R$ ${sinal.toFixed(2).replace(".", ",")} *(Pago via PIX)*`,
-      `💳 *Saldo no atendimento:* R$ ${balance.toFixed(2).replace(".", ",")}`,
+      `• *Valor Total:* R$ ${total.toFixed(2).replace(".", ",")}`,
+      `• *Sinal de 30%:* R$ ${sinal.toFixed(2).replace(".", ",")} (Pago via PIX)`,
+      `• *Saldo no atendimento:* R$ ${balance.toFixed(2).replace(".", ",")}`,
       "",
-      "Estou enviando o comprovante do sinal aqui para confirmar e garantir meu horário! 📸"
+      "Estou enviando o comprovante do sinal aqui para confirmar e garantir meu horário!"
     ].filter(Boolean).join("\n");
 
     if (btnWhatsAppConfirm) {
-      btnWhatsAppConfirm.href = `https://wa.me/${PIX_CONFIG.whatsappPhone}?text=${encodeURIComponent(msg)}`;
+      // Usa o endpoint oficial direto do WhatsApp sem redirecionamentos intermediários (evita corrupção de caracteres UTF-8)
+      btnWhatsAppConfirm.href = `https://api.whatsapp.com/send?phone=${PIX_CONFIG.whatsappPhone}&text=${encodeURIComponent(msg)}`;
     }
 
     // Sincroniza o agendamento automaticamente com a Google Agenda da dona
     syncWithGoogleCalendar();
   }
 
-  // 8. Integração em Tempo Real com Google Agenda (Apps Script Webhook)
+  // 8. Integração em Tempo Real com Google Agenda (Apps Script Webhook) com Proteção contra Abuso
   let isSyncingGoogleCalendar = false;
   let googleCalendarSynced = false;
+  let lastSyncTimestamp = 0;
 
   function syncWithGoogleCalendar() {
-    if (googleCalendarSynced || isSyncingGoogleCalendar) return;
+    const now = Date.now();
+    // Proteção contra chamadas repetitivas (mínimo de 10 segundos entre requisições)
+    if (googleCalendarSynced || isSyncingGoogleCalendar || (now - lastSyncTimestamp < 10000)) return;
     if (!state.selectedDate || !state.selectedTime || !state.clientName) return;
 
+    lastSyncTimestamp = now;
     isSyncingGoogleCalendar = true;
 
     const service = SERVICES[state.serviceId] || SERVICES.cilios;
