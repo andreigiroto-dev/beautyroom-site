@@ -156,15 +156,15 @@ if (lightbox) {
       sinal: 60.00,
       duration: "2h30",
       durationHours: 2.5
-    },
-    // [ITEM DE TESTE R$ 0,01 - REMOVER OU COMENTAR QUANDO FINALIZADO]
+    }/*,
+    // [ITEM DE TESTE R$ 0,01 - COMENTADO/DESATIVADO]
     teste: {
       name: "Procedimento de Teste (R$ 0,01)",
       price: 0.01,
       sinal: 0.01,
       duration: "15min",
       durationHours: 0.25
-    }
+    }*/
   };
 
   // URL do Webhook do Google Apps Script (Sincronização com Google Agenda da Dona)
