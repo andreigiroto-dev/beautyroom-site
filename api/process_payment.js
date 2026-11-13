@@ -93,8 +93,11 @@ export default async function handler(req, res) {
 
     if (!mpResponse.ok) {
       console.error('Erro na resposta do Mercado Pago:', paymentData);
+      const detailMsg = (paymentData.cause && paymentData.cause.length > 0) 
+        ? paymentData.cause.map(c => c.description || c.code).join(', ')
+        : (paymentData.message || 'Erro ao processar pagamento');
       return res.status(mpResponse.status).json({
-        error: paymentData.message || 'Erro ao processar pagamento no Mercado Pago',
+        error: detailMsg,
         details: paymentData.cause || []
       });
     }

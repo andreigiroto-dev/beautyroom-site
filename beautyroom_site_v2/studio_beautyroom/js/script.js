@@ -948,16 +948,18 @@ if (lightbox) {
       let installments = cardFormData ? (cardFormData.installments || 1) : 1;
 
       if (!cardToken && mpInstance) {
-        const rawCardNumber = document.getElementById("formCheckoutCard__cardNumber")?.value.replace(/\s/g, "");
+        const rawCardNumber = document.getElementById("formCheckoutCard__cardNumber")?.value.replace(/\D/g, "");
         const rawCardholder = document.getElementById("formCheckoutCard__cardholderName")?.value.trim();
         const rawExp = document.getElementById("formCheckoutCard__expirationDate")?.value.trim() || "";
         const rawCvv = document.getElementById("formCheckoutCard__securityCode")?.value.trim();
         const installmentsSelect = document.getElementById("formCheckoutCard__installments");
         installments = installmentsSelect ? installmentsSelect.value : 1;
 
-        const [expMonth, expYear] = rawExp.split("/");
+        const expParts = rawExp.split("/");
+        const expMonth = expParts[0] ? expParts[0].trim().padStart(2, "0") : "";
+        const expYearRaw = expParts[1] ? expParts[1].trim() : "";
 
-        if (!rawCardNumber || !rawCardholder || !expMonth || !expYear || !rawCvv) {
+        if (!rawCardNumber || !rawCardholder || !expMonth || !expYearRaw || !rawCvv) {
           alert("Por favor, preencha todos os campos do cartão.");
           if (btnPayCard) btnPayCard.disabled = false;
           if (btnPayCardText) btnPayCardText.textContent = "Tentar Novamente";
@@ -965,7 +967,20 @@ if (lightbox) {
           return;
         }
 
-        const fullYear = expYear.length === 2 ? `20${expYear}` : expYear;
+        const fullYear = expYearRaw.length === 2 ? `20${expYearRaw}` : expYearRaw;
+
+        // Identifica a bandeira (paymentMethodId) pelo bin do cartão
+        if (!paymentMethodId && rawCardNumber.length >= 6) {
+          try {
+            const bin = rawCardNumber.substring(0, 6);
+            const paymentMethods = await mpInstance.getPaymentMethods({ bin });
+            if (paymentMethods && paymentMethods.results && paymentMethods.results.length > 0) {
+              paymentMethodId = paymentMethods.results[0].id;
+            }
+          } catch (binErr) {
+            console.warn("Falha ao obter método de pagamento pelo BIN:", binErr);
+          }
+        }
 
         const tokenResult = await mpInstance.createCardToken({
           cardNumber: rawCardNumber,
@@ -975,7 +990,7 @@ if (lightbox) {
           securityCode: rawCvv,
           identification: {
             type: "CPF",
-            number: state.clientCpf
+            number: state.clientCpf.replace(/\D/g, "")
           }
         });
 
