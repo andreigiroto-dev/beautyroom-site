@@ -926,15 +926,70 @@ if (lightbox) {
 
   // Envio seguro do pagamento com cartão para a API da Vercel
   async function processCardPayment() {
-    if (!cardFormInstance) return;
-
     if (btnPayCard) btnPayCard.disabled = true;
     if (btnPayCardText) btnPayCardText.textContent = "Processando pagamento...";
     if (btnPayCardSpinner) btnPayCardSpinner.style.display = "inline-block";
     if (cardPaymentMessage) cardPaymentMessage.style.display = "none";
 
     try {
-      const cardFormData = cardFormInstance.getCardFormData();
+      let cardFormData = null;
+      if (cardFormInstance) {
+        try {
+          cardFormData = cardFormInstance.getCardFormData();
+        } catch (e) {
+          console.warn("Erro ao obter dados via CardForm:", e);
+        }
+      }
+
+      // Se o cardFormInstance não tiver tokenizado ou falhar, tokeniza diretamente via SDK
+      let cardToken = cardFormData ? cardFormData.token : null;
+      let paymentMethodId = cardFormData ? cardFormData.paymentMethodId : null;
+      let issuerId = cardFormData ? cardFormData.issuerId : null;
+      let installments = cardFormData ? (cardFormData.installments || 1) : 1;
+
+      if (!cardToken && mpInstance) {
+        const rawCardNumber = document.getElementById("formCheckoutCard__cardNumber")?.value.replace(/\s/g, "");
+        const rawCardholder = document.getElementById("formCheckoutCard__cardholderName")?.value.trim();
+        const rawExp = document.getElementById("formCheckoutCard__expirationDate")?.value.trim() || "";
+        const rawCvv = document.getElementById("formCheckoutCard__securityCode")?.value.trim();
+        const installmentsSelect = document.getElementById("formCheckoutCard__installments");
+        installments = installmentsSelect ? installmentsSelect.value : 1;
+
+        const [expMonth, expYear] = rawExp.split("/");
+
+        if (!rawCardNumber || !rawCardholder || !expMonth || !expYear || !rawCvv) {
+          alert("Por favor, preencha todos os campos do cartão.");
+          if (btnPayCard) btnPayCard.disabled = false;
+          if (btnPayCardText) btnPayCardText.textContent = "Tentar Novamente";
+          if (btnPayCardSpinner) btnPayCardSpinner.style.display = "none";
+          return;
+        }
+
+        const fullYear = expYear.length === 2 ? `20${expYear}` : expYear;
+
+        const tokenResult = await mpInstance.createCardToken({
+          cardNumber: rawCardNumber,
+          cardholderName: rawCardholder,
+          cardExpirationMonth: expMonth,
+          cardExpirationYear: fullYear,
+          securityCode: rawCvv,
+          identification: {
+            type: "CPF",
+            number: state.clientCpf
+          }
+        });
+
+        if (tokenResult && tokenResult.id) {
+          cardToken = tokenResult.id;
+        } else {
+          throw new Error("Não foi possível validar os dados do cartão.");
+        }
+      }
+
+      if (!cardToken) {
+        throw new Error("Falha ao gerar o token de segurança do cartão.");
+      }
+
       const s = SERVICES[state.serviceId] || SERVICES.cilios;
 
       const response = await fetch("/api/process_payment", {
@@ -946,10 +1001,10 @@ if (lightbox) {
           paymentMethod: "card",
           transactionAmount: s.sinal,
           description: `Sinal Beauty Room - ${s.name}`,
-          token: cardFormData.token,
-          installments: cardFormData.installments || 1,
-          paymentMethodId: cardFormData.paymentMethodId,
-          issuerId: cardFormData.issuerId,
+          token: cardToken,
+          installments: Number(installments) || 1,
+          paymentMethodId: paymentMethodId,
+          issuerId: issuerId,
           payer: {
             email: state.clientEmail,
             firstName: state.clientName.split(" ")[0] || "Cliente",
@@ -994,7 +1049,7 @@ if (lightbox) {
       console.error("Erro na requisição de pagamento:", err);
       if (cardPaymentMessage) {
         cardPaymentMessage.className = "payment-feedback-msg error";
-        cardPaymentMessage.textContent = "❌ Falha na conexão ao processar o cartão. Tente novamente ou use o PIX.";
+        cardPaymentMessage.textContent = `❌ ${err.message || "Falha na conexão ao processar o cartão. Tente novamente ou use o PIX."}`;
         cardPaymentMessage.style.display = "block";
       }
       if (btnPayCard) btnPayCard.disabled = false;
@@ -1002,6 +1057,14 @@ if (lightbox) {
     } finally {
       if (btnPayCardSpinner) btnPayCardSpinner.style.display = "none";
     }
+  }
+
+  // Listener de clique explícito no botão de pagamento com cartão
+  if (btnPayCard) {
+    btnPayCard.addEventListener("click", (e) => {
+      e.preventDefault();
+      processCardPayment();
+    });
   }
 
   // Iniciar calendário no mês atual
