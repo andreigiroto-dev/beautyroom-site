@@ -1313,12 +1313,14 @@ h1 em,h2 em { color: var(--brown); font-weight: 400; }
   opacity: 0.6;
   cursor: not-allowed;
 }
-.card-security-footer {
-  margin-top: 14px;
-  text-align: center;
-  font-size: 11px;
-  color: #8c8275;
-  line-height: 1.4;
+.slot-btn.slot-occupied,
+.slot-btn:disabled {
+  background: #f1ede6 !important;
+  color: #a89f92 !important;
+  border-color: #e5ded4 !important;
+  cursor: not-allowed !important;
+  text-decoration: line-through;
+  opacity: 0.6;
 }
 .payment-feedback-msg {
   padding: 12px;

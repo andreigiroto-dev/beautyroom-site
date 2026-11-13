@@ -492,9 +492,33 @@ if (lightbox) {
     updateDateTimeSummary();
   }
 
+  // Gestão de Horários Ocupados / Bloqueados
+  function getBookedSlots() {
+    try {
+      const data = localStorage.getItem("br_booked_slots");
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveBookedSlot(slotKey) {
+    try {
+      const slots = getBookedSlots();
+      if (!slots.includes(slotKey)) {
+        slots.push(slotKey);
+        localStorage.setItem("br_booked_slots", JSON.stringify(slots));
+      }
+    } catch (e) { }
+  }
+
   function renderTimeSlots() {
     if (!calSlotsGrid) return;
     calSlotsGrid.innerHTML = "";
+
+    const d = state.selectedDate;
+    const datePrefix = d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : "";
+    const bookedList = getBookedSlots();
 
     AVAILABLE_HOURS.forEach((hour) => {
       const btn = document.createElement("button");
@@ -502,18 +526,28 @@ if (lightbox) {
       btn.className = "slot-btn";
       btn.textContent = hour;
 
-      if (state.selectedTime === hour) {
-        btn.classList.add("active");
+      const slotKey = `${datePrefix}_${hour}`;
+      const isBooked = bookedList.includes(slotKey);
+
+      if (isBooked) {
+        btn.disabled = true;
+        btn.classList.add("slot-occupied");
+        btn.title = "Horário indisponível (já agendado)";
+        btn.textContent = `${hour} (Ocupado)`;
+      } else {
+        if (state.selectedTime === hour) {
+          btn.classList.add("active");
+        }
+
+        btn.addEventListener("click", () => {
+          state.selectedTime = hour;
+          calSlotsGrid.querySelectorAll(".slot-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          if (btnNextFromCal) btnNextFromCal.disabled = false;
+          updateDateTimeSummary();
+        });
       }
-
-      btn.addEventListener("click", () => {
-        state.selectedTime = hour;
-        calSlotsGrid.querySelectorAll(".slot-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        if (btnNextFromCal) btnNextFromCal.disabled = false;
-        updateDateTimeSummary();
-      });
 
       calSlotsGrid.appendChild(btn);
     });
@@ -832,6 +866,9 @@ if (lightbox) {
           statusEl.textContent = "📅 Bloqueado na Google Agenda ✓";
           statusEl.className = "badge-agenda-synced badge-agenda-done";
         }
+        // Salva o horário como bloqueado
+        const bookedKey = `${isoDate}_${state.selectedTime}`;
+        saveBookedSlot(bookedKey);
         console.log("✓ Evento registrado com sucesso na Google Agenda da dona!");
       })
       .catch((err) => {
@@ -1039,7 +1076,7 @@ if (lightbox) {
       if (response.ok && (result.status === "approved" || result.status === "in_process")) {
         if (cardPaymentMessage) {
           cardPaymentMessage.className = "payment-feedback-msg success";
-          cardPaymentMessage.textContent = "✓ Pagamento aprovado com sucesso! Sincronizando com a Google Agenda...";
+          cardPaymentMessage.textContent = "✓ Pagamento aprovado com sucesso! Sincronizado com a Google Agenda.";
           cardPaymentMessage.style.display = "block";
         }
 
@@ -1047,10 +1084,19 @@ if (lightbox) {
         syncWithGoogleCalendar();
 
         if (btnPayCardText) btnPayCardText.textContent = "Pagamento Aprovado ✓";
+        if (btnPayCard) btnPayCard.style.display = "none"; // Oculta o botão de pagar
+
+        // Salva localmente o horário reservado para bloqueio imediato na tela
+        const d = state.selectedDate;
+        const bookedKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}_${state.selectedTime}`;
+        saveBookedSlot(bookedKey);
+
+        // Prepara e exibe o botão de envio de comprovante no WhatsApp
+        setupCardWhatsAppButton(result.id);
 
         setTimeout(() => {
-          alert(`🎉 Pagamento aprovado!\n\nSeu agendamento para ${s.name} foi confirmado com sucesso!\nEnviamos os detalhes para o seu e-mail (${state.clientEmail}).`);
-        }, 1200);
+          alert(`🎉 Pagamento aprovado!\n\nSeu agendamento para ${s.name} foi confirmado com sucesso!\nClique no botão verde abaixo para enviar a confirmação no WhatsApp.`);
+        }, 800);
 
       } else {
         const errorDetail = result.error || "O pagamento não foi aprovado pelo banco emissor. Verifique os dados do cartão e tente novamente.";
@@ -1074,6 +1120,39 @@ if (lightbox) {
     } finally {
       if (btnPayCardSpinner) btnPayCardSpinner.style.display = "none";
     }
+  }
+
+  // Configuração do botão de envio de comprovante no WhatsApp após pagamento com Cartão
+  function setupCardWhatsAppButton(paymentId) {
+    const cardSuccessCard = document.getElementById("cardSuccessWhatsappCard");
+    const btnCardWhatsAppConfirm = document.getElementById("btnCardWhatsAppConfirm");
+    if (!cardSuccessCard || !btnCardWhatsAppConfirm) return;
+
+    const s = SERVICES[state.serviceId] || SERVICES.cilios;
+    const d = state.selectedDate;
+    const formattedDate = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+    const formattedPrice = `R$ ${s.price.toFixed(2).replace(".", ",")}`;
+    const formattedSinal = `R$ ${s.sinal.toFixed(2).replace(".", ",")}`;
+    const formattedBalance = `R$ ${(s.price - s.sinal).toFixed(2).replace(".", ",")}`;
+
+    const lines = [
+      "Ola, Thais! Acabei de realizar o pagamento do sinal pelo cartao de credito na Beauty Room.",
+      "",
+      `*Cliente:* ${state.clientName}`,
+      `*Procedimento:* ${s.name}`,
+      `*Data:* ${formattedDate} as ${state.selectedTime}`,
+      `*Valor Total:* ${formattedPrice}`,
+      `*Sinal Pago no Cartao:* ${formattedSinal} (ID: ${paymentId || "MP"})`,
+      `*Saldo a pagar no dia:* ${formattedBalance}`,
+      "",
+      "Poderia me confirmar o agendamento? Aguardo as orientacoes!"
+    ];
+
+    const message = lines.join("\n");
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${PIX_CONFIG.whatsappPhone}&text=${encodeURIComponent(message)}`;
+    btnCardWhatsAppConfirm.setAttribute("href", whatsappUrl);
+
+    cardSuccessCard.style.display = "block";
   }
 
   // Listener de clique explícito no botão de pagamento com cartão
