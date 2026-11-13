@@ -593,6 +593,61 @@ if (lightbox) {
     });
   }
 
+  // Máscaras e Eventos do Cartão de Crédito
+  const cardNumberInput = document.getElementById("formCheckoutCard__cardNumber");
+  const cardExpInput = document.getElementById("formCheckoutCard__expirationDate");
+  const installmentsSelect = document.getElementById("formCheckoutCard__installments");
+
+  if (cardNumberInput) {
+    cardNumberInput.addEventListener("input", async (e) => {
+      let val = e.target.value.replace(/\D/g, "");
+      if (val.length > 16) val = val.substring(0, 16);
+      // Formata em blocos de 4 dígitos
+      e.target.value = val.replace(/(\d{4})(?=\d)/g, "$1 ");
+
+      // Atualiza parcelas e bandeira automaticamente a partir do BIN (6 dígitos)
+      if (val.length >= 6 && mpInstance) {
+        updateCardInstallments(val.substring(0, 6));
+      }
+    });
+  }
+
+  if (cardExpInput) {
+    cardExpInput.addEventListener("input", (e) => {
+      let val = e.target.value.replace(/\D/g, "");
+      if (val.length > 4) val = val.substring(0, 4);
+      if (val.length >= 3) {
+        e.target.value = `${val.substring(0, 2)}/${val.substring(2)}`;
+      } else {
+        e.target.value = val;
+      }
+    });
+  }
+
+  // Busca as parcelas oficiais do Mercado Pago
+  async function updateCardInstallments(bin) {
+    if (!mpInstance || !installmentsSelect) return;
+    try {
+      const s = SERVICES[state.serviceId] || SERVICES.cilios;
+      const installments = await mpInstance.getInstallments({
+        amount: String(s.sinal.toFixed(2)),
+        bin: bin
+      });
+
+      if (installments && installments[0] && installments[0].payer_costs) {
+        installmentsSelect.innerHTML = "";
+        installments[0].payer_costs.forEach((cost) => {
+          const opt = document.createElement("option");
+          opt.value = cost.installments;
+          opt.textContent = cost.recommended_message;
+          installmentsSelect.appendChild(opt);
+        });
+      }
+    } catch (err) {
+      console.warn("Aviso ao carregar parcelas:", err);
+    }
+  }
+
   // 6. Gerador Oficial PIX Padrão BACEN (BR Code EMV / CRC16)
   function formatEMV(id, value) {
     const len = String(value.length).padStart(2, "0");
@@ -871,56 +926,10 @@ if (lightbox) {
       btnPayCardText.textContent = `Pagar Sinal de R$ ${amountStr.replace(".", ",")} no Cartão`;
     }
 
-    // Se já estiver inicializado, apenas atualiza o valor
-    if (cardFormInstance) {
-      try {
-        cardFormInstance.update();
-      } catch (e) { }
-      return;
-    }
-
-    try {
-      cardFormInstance = mpInstance.cardForm({
-        amount: String(amountStr),
-        iframe: false,
-        form: {
-          id: "formCheckoutCard",
-          cardNumber: {
-            id: "formCheckoutCard__cardNumber",
-            placeholder: "0000 0000 0000 0000"
-          },
-          expirationDate: {
-            id: "formCheckoutCard__expirationDate",
-            placeholder: "MM/AA"
-          },
-          securityCode: {
-            id: "formCheckoutCard__securityCode",
-            placeholder: "123"
-          },
-          cardholderName: {
-            id: "formCheckoutCard__cardholderName",
-            placeholder: "Titular do Cartão"
-          },
-          installments: {
-            id: "formCheckoutCard__installments"
-          }
-        },
-        callbacks: {
-          onFormMounted: (error) => {
-            if (error) return console.warn("Erro ao montar formulário do cartão:", error);
-            console.log("CardForm montado com sucesso");
-          },
-          onSubmit: (event) => {
-            event.preventDefault();
-            processCardPayment();
-          },
-          onFetching: (resource) => {
-            console.log("Buscando recurso do Mercado Pago: ", resource);
-          }
-        }
-      });
-    } catch (err) {
-      console.error("Falha ao inicializar o CardForm do Mercado Pago:", err);
+    // Se já tiver um número de cartão preenchido, atualiza as parcelas
+    const currentCardVal = document.getElementById("formCheckoutCard__cardNumber")?.value.replace(/\D/g, "");
+    if (currentCardVal && currentCardVal.length >= 6) {
+      updateCardInstallments(currentCardVal.substring(0, 6));
     }
   }
 
@@ -932,79 +941,72 @@ if (lightbox) {
     if (cardPaymentMessage) cardPaymentMessage.style.display = "none";
 
     try {
-      let cardFormData = null;
-      if (cardFormInstance) {
+      const rawCardNumber = document.getElementById("formCheckoutCard__cardNumber")?.value.replace(/\D/g, "");
+      const rawCardholder = document.getElementById("formCheckoutCard__cardholderName")?.value.trim();
+      const rawExp = document.getElementById("formCheckoutCard__expirationDate")?.value.trim() || "";
+      const rawCvv = document.getElementById("formCheckoutCard__securityCode")?.value.trim();
+      const installmentsSelect = document.getElementById("formCheckoutCard__installments");
+      const installments = installmentsSelect ? installmentsSelect.value : 1;
+
+      const expParts = rawExp.split("/");
+      const expMonth = expParts[0] ? expParts[0].trim().padStart(2, "0") : "";
+      const expYearRaw = expParts[1] ? expParts[1].trim() : "";
+
+      if (!rawCardNumber || !rawCardholder || !expMonth || !expYearRaw || !rawCvv) {
+        alert("Por favor, preencha todos os campos do cartão.");
+        if (btnPayCard) btnPayCard.disabled = false;
+        if (btnPayCardText) btnPayCardText.textContent = "Tentar Novamente";
+        if (btnPayCardSpinner) btnPayCardSpinner.style.display = "none";
+        return;
+      }
+
+      const fullYear = expYearRaw.length === 2 ? `20${expYearRaw}` : expYearRaw;
+
+      // 1. Obtém a bandeira do cartão (Payment Method) pelo BIN (6 dígitos)
+      let paymentMethodId = null;
+      let issuerId = null;
+      if (rawCardNumber.length >= 6) {
         try {
-          cardFormData = cardFormInstance.getCardFormData();
-        } catch (e) {
-          console.warn("Erro ao obter dados via CardForm:", e);
-        }
-      }
-
-      // Se o cardFormInstance não tiver tokenizado ou falhar, tokeniza diretamente via SDK
-      let cardToken = cardFormData ? cardFormData.token : null;
-      let paymentMethodId = cardFormData ? cardFormData.paymentMethodId : null;
-      let issuerId = cardFormData ? cardFormData.issuerId : null;
-      let installments = cardFormData ? (cardFormData.installments || 1) : 1;
-
-      if (!cardToken && mpInstance) {
-        const rawCardNumber = document.getElementById("formCheckoutCard__cardNumber")?.value.replace(/\D/g, "");
-        const rawCardholder = document.getElementById("formCheckoutCard__cardholderName")?.value.trim();
-        const rawExp = document.getElementById("formCheckoutCard__expirationDate")?.value.trim() || "";
-        const rawCvv = document.getElementById("formCheckoutCard__securityCode")?.value.trim();
-        const installmentsSelect = document.getElementById("formCheckoutCard__installments");
-        installments = installmentsSelect ? installmentsSelect.value : 1;
-
-        const expParts = rawExp.split("/");
-        const expMonth = expParts[0] ? expParts[0].trim().padStart(2, "0") : "";
-        const expYearRaw = expParts[1] ? expParts[1].trim() : "";
-
-        if (!rawCardNumber || !rawCardholder || !expMonth || !expYearRaw || !rawCvv) {
-          alert("Por favor, preencha todos os campos do cartão.");
-          if (btnPayCard) btnPayCard.disabled = false;
-          if (btnPayCardText) btnPayCardText.textContent = "Tentar Novamente";
-          if (btnPayCardSpinner) btnPayCardSpinner.style.display = "none";
-          return;
-        }
-
-        const fullYear = expYearRaw.length === 2 ? `20${expYearRaw}` : expYearRaw;
-
-        // Identifica a bandeira (paymentMethodId) pelo bin do cartão
-        if (!paymentMethodId && rawCardNumber.length >= 6) {
-          try {
-            const bin = rawCardNumber.substring(0, 6);
-            const paymentMethods = await mpInstance.getPaymentMethods({ bin });
-            if (paymentMethods && paymentMethods.results && paymentMethods.results.length > 0) {
-              paymentMethodId = paymentMethods.results[0].id;
-            }
-          } catch (binErr) {
-            console.warn("Falha ao obter método de pagamento pelo BIN:", binErr);
+          const bin = rawCardNumber.substring(0, 6);
+          const paymentMethods = await mpInstance.getPaymentMethods({ bin });
+          if (paymentMethods && paymentMethods.results && paymentMethods.results.length > 0) {
+            paymentMethodId = paymentMethods.results[0].id;
           }
-        }
-
-        const tokenResult = await mpInstance.createCardToken({
-          cardNumber: rawCardNumber,
-          cardholderName: rawCardholder,
-          cardExpirationMonth: expMonth,
-          cardExpirationYear: fullYear,
-          securityCode: rawCvv,
-          identification: {
-            type: "CPF",
-            number: state.clientCpf.replace(/\D/g, "")
+          const issuers = await mpInstance.getIssuers({ paymentMethodId, bin });
+          if (issuers && issuers.length > 0) {
+            issuerId = issuers[0].id;
           }
-        });
-
-        if (tokenResult && tokenResult.id) {
-          cardToken = tokenResult.id;
-        } else {
-          throw new Error("Não foi possível validar os dados do cartão.");
+        } catch (binErr) {
+          console.warn("Aviso ao buscar paymentMethod/issuer:", binErr);
         }
       }
 
-      if (!cardToken) {
-        throw new Error("Falha ao gerar o token de segurança do cartão.");
+      // 2. Tokeniza o cartão diretamente com o SDK oficial do Mercado Pago
+      const tokenPayload = {
+        cardNumber: rawCardNumber,
+        cardholderName: rawCardholder,
+        cardExpirationMonth: expMonth,
+        cardExpirationYear: fullYear,
+        securityCode: rawCvv,
+        identification: {
+          type: "CPF",
+          number: state.clientCpf.replace(/\D/g, "")
+        }
+      };
+
+      console.log("Tokenizando cartão com payload:", {
+        ...tokenPayload,
+        cardNumber: "******" + rawCardNumber.slice(-4),
+        securityCode: "***"
+      });
+
+      const tokenResult = await mpInstance.createCardToken(tokenPayload);
+
+      if (!tokenResult || !tokenResult.id) {
+        throw new Error("Não foi possível validar o número do cartão.");
       }
 
+      const cardToken = tokenResult.id;
       const s = SERVICES[state.serviceId] || SERVICES.cilios;
 
       const response = await fetch("/api/process_payment", {
