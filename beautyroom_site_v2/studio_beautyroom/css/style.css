@@ -1190,3 +1190,142 @@ h1 em,h2 em { color: var(--brown); font-weight: 400; }
   .cal-slots-grid { justify-content: center; }
   .btn-whatsapp-action { font-size: 9.5px; padding: 12px 14px; text-align: center; }
 }
+
+/* ==========================================================================
+   ESTILOS DO CHECKOUT COM MERCADO PAGO (PIX E CARTÃO DE CRÉDITO)
+   ========================================================================== */
+.payment-tabs-wrapper {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.payment-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 12px;
+  background: var(--bg-soft, #faf7f2);
+  border: 2px solid var(--line, #e2d7c5);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark, #2a241e);
+  transition: all 0.25s ease;
+}
+.payment-tab:hover {
+  border-color: var(--gold, #bd965e);
+  background: #ffffff;
+}
+.payment-tab.active {
+  border-color: var(--gold, #bd965e);
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(189, 150, 94, 0.16);
+  color: var(--gold, #bd965e);
+}
+.payment-tab .tab-icon {
+  font-size: 20px;
+}
+.payment-tab .tab-badge {
+  font-size: 10px;
+  color: #7a7065;
+  font-weight: 400;
+}
+.payment-tab.active .tab-badge {
+  color: var(--gold, #bd965e);
+  font-weight: 600;
+}
+
+.card-checkout-container {
+  background: #ffffff;
+  border: 1px solid var(--line, #e2d7c5);
+  border-radius: 14px;
+  padding: 22px;
+  margin-top: 15px;
+}
+.card-checkout-header {
+  margin-bottom: 18px;
+  text-align: center;
+}
+.secure-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2b7a4b;
+  background: rgba(43, 122, 75, 0.08);
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: inline-block;
+}
+.card-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.mp-input-container {
+  height: 44px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid var(--line, #e2d7c5);
+  border-radius: 8px;
+  transition: border-color 0.2s ease;
+}
+.mp-input-container:focus-within {
+  border-color: var(--gold, #bd965e);
+}
+.btn-pay-card {
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--gold, #bd965e);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.25s ease;
+  margin-top: 6px;
+}
+.btn-pay-card:hover {
+  background: #a47d47;
+}
+.btn-pay-card:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.card-security-footer {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 11px;
+  color: #8c8275;
+  line-height: 1.4;
+}
+.payment-feedback-msg {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: center;
+  font-weight: 500;
+}
+.payment-feedback-msg.success {
+  background: rgba(43, 122, 75, 0.1);
+  color: #2b7a4b;
+  border: 1px solid rgba(43, 122, 75, 0.2);
+}
+.payment-feedback-msg.error {
+  background: rgba(200, 35, 51, 0.08);
+  color: #c82333;
+  border: 1px solid rgba(200, 35, 51, 0.2);
+}
+

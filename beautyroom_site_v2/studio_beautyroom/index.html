@@ -540,6 +540,17 @@
               </div>
             </div>
 
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="clientEmail">Seu E-mail * <small>(para envio do comprovante)</small></label>
+                <input type="email" id="clientEmail" placeholder="mariana@exemplo.com" required autocomplete="email">
+              </div>
+              <div class="form-field">
+                <label for="clientCpf">Seu CPF * <small>(exigido pelo banco para nota/pagamento)</small></label>
+                <input type="text" id="clientCpf" placeholder="000.000.000-00" maxlength="14" required autocomplete="off">
+              </div>
+            </div>
+
             <div class="form-field">
               <label for="clientNotes">Observações ou dúvidas (opcional)</label>
               <textarea id="clientNotes" rows="2"
@@ -567,51 +578,65 @@
           </div>
         </div>
 
-        <!-- ETAPA 4: Confirmação & Pagamento do Sinal (30%) via PIX (Opção A) -->
+        <!-- ETAPA 4: Confirmação & Pagamento do Sinal (30%) via PIX ou Cartão -->
         <div class="booking-step" data-step="4">
           <div class="step-intro">
-            <h3>4. Garanta seu horário com o sinal de 30% via PIX</h3>
-            <p>Efetue o pagamento do sinal para confirmar e travar o horário escolhido.</p>
+            <h3>4. Garanta seu horário com o sinal de 30%</h3>
+            <p>Escolha a forma de pagamento do sinal para confirmar e travar o horário escolhido.</p>
           </div>
 
-          <div class="pix-checkout-wrapper">
-            <!-- Coluna 1: Resumo Financeiro Transparente -->
-            <div class="pix-summary-box">
-              <div class="pix-summary-header">RESUMO DA RESERVA</div>
-              <div class="summary-line">
-                <span>Procedimento:</span>
-                <b id="pixServiceTitle">Extensão de Cílios</b>
-              </div>
-              <div class="summary-line">
-                <span>Data & Horário:</span>
-                <b id="pixDateTimeText">Selecione</b>
-              </div>
-              <div class="summary-line">
-                <span>Cliente:</span>
-                <b id="pixClientName">Mariana Silva</b>
-              </div>
-              <div class="summary-line">
-                <span>Google Agenda:</span>
-                <span class="badge-agenda-synced" id="pixAgendaStatus">📅 Registrado na Agenda ✓</span>
-              </div>
+          <!-- Seletor de Método de Pagamento do Sinal -->
+          <div class="payment-tabs-wrapper">
+            <button type="button" class="payment-tab active" data-pay-method="pix" id="tabPayPix">
+              <span class="tab-icon">⚡</span>
+              <span>Pagar com PIX</span>
+              <small class="tab-badge">Aprovação Imediata</small>
+            </button>
+            <button type="button" class="payment-tab" data-pay-method="card" id="tabPayCard">
+              <span class="tab-icon">💳</span>
+              <span>Cartão de Crédito</span>
+              <small class="tab-badge">Mercado Pago</small>
+            </button>
+          </div>
 
-              <div class="summary-separator"></div>
-
-              <div class="summary-line line-total">
-                <span>Valor Total:</span>
-                <span id="pixTotalValue">R$ 160,00</span>
-              </div>
-              <div class="summary-line line-sinal">
-                <span>Sinal de Reserva (30%):</span>
-                <span class="badge-sinal-value" id="pixSinalValue">R$ 48,00</span>
-              </div>
-              <div class="summary-line line-balance">
-                <span>Saldo a pagar no dia (70%):</span>
-                <span id="pixBalanceValue">R$ 112,00</span>
-              </div>
+          <!-- Resumo Financeiro Transparente (Comum para Pix e Cartão) -->
+          <div class="pix-summary-box">
+            <div class="pix-summary-header">RESUMO DA RESERVA</div>
+            <div class="summary-line">
+              <span>Procedimento:</span>
+              <b id="pixServiceTitle">Extensão de Cílios</b>
+            </div>
+            <div class="summary-line">
+              <span>Data & Horário:</span>
+              <b id="pixDateTimeText">Selecione</b>
+            </div>
+            <div class="summary-line">
+              <span>Cliente:</span>
+              <b id="pixClientName">Mariana Silva</b>
+            </div>
+            <div class="summary-line">
+              <span>Google Agenda:</span>
+              <span class="badge-agenda-synced" id="pixAgendaStatus">📅 Registrado na Agenda ✓</span>
             </div>
 
-            <!-- Coluna 2: QR Code e Chave PIX Copia e Cola -->
+            <div class="summary-separator"></div>
+
+            <div class="summary-line line-total">
+              <span>Valor Total:</span>
+              <span id="pixTotalValue">R$ 160,00</span>
+            </div>
+            <div class="summary-line line-sinal">
+              <span>Sinal de Reserva (30%):</span>
+              <span class="badge-sinal-value" id="pixSinalValue">R$ 48,00</span>
+            </div>
+            <div class="summary-line line-balance">
+              <span>Saldo no estúdio (70%):</span>
+              <span id="pixBalanceValue">R$ 112,00</span>
+            </div>
+          </div>
+
+          <!-- CONTEÚDO 1: PAGAMENTO VIA PIX -->
+          <div class="payment-view active" id="viewPayPix">
             <div class="pix-payment-box">
               <div class="qr-code-wrapper">
                 <div class="qr-frame">
@@ -636,21 +661,69 @@
                 </div>
               </div>
             </div>
+
+            <!-- Ação Final PIX -->
+            <div class="whatsapp-confirmation-card">
+              <div class="confirm-head">
+                <strong>Próximo passo:</strong>
+                <p>Após pagar o sinal no app do seu banco, envie o comprovante no WhatsApp do estúdio para validar seu agendamento:</p>
+              </div>
+              <a href="#" id="btnWhatsAppConfirm" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-action">
+                <span>Já fiz o PIX · Enviar comprovante no WhatsApp</span>
+                <span class="btn-arrow">↗</span>
+              </a>
+              <small class="confirm-note">⏳ Seu horário permanece pré-reservado aguardando o comprovante.</small>
+            </div>
           </div>
 
-          <!-- Ação Final de Confirmação com Envio do Comprovante no WhatsApp -->
-          <div class="whatsapp-confirmation-card">
-            <div class="confirm-head">
-              <strong>Próximo passo:</strong>
-              <p>Após pagar o sinal de 30% no app do seu banco, clique no botão abaixo para enviar o comprovante no
-                WhatsApp da Beauty Room e confirmar imediatamente sua vaga:</p>
+          <!-- CONTEÚDO 2: PAGAMENTO VIA CARTÃO DE CRÉDITO (CHECKOUT TRANSPARENTE MERCADO PAGO) -->
+          <div class="payment-view" id="viewPayCard" style="display: none;">
+            <div class="card-checkout-container">
+              <div class="card-checkout-header">
+                <span class="secure-badge">🔒 Pagamento Criptografado via Mercado Pago</span>
+              </div>
+
+              <form id="formCheckoutCard" class="card-form-grid" onsubmit="return false;">
+                <div class="form-field full-width">
+                  <label for="formCheckoutCard__cardNumber">Número do Cartão *</label>
+                  <div id="formCheckoutCard__cardNumber" class="mp-input-container"></div>
+                </div>
+
+                <div class="form-field full-width">
+                  <label for="formCheckoutCard__cardholderName">Nome impresso no Cartão *</label>
+                  <input type="text" id="formCheckoutCard__cardholderName" placeholder="Ex: MARIANA SILVA" autocomplete="cc-name" required>
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-field">
+                    <label for="formCheckoutCard__expirationDate">Validade (MM/AA) *</label>
+                    <div id="formCheckoutCard__expirationDate" class="mp-input-container"></div>
+                  </div>
+                  <div class="form-field">
+                    <label for="formCheckoutCard__securityCode">CVV / Cód. Segurança *</label>
+                    <div id="formCheckoutCard__securityCode" class="mp-input-container"></div>
+                  </div>
+                </div>
+
+                <div class="form-field full-width">
+                  <label for="formCheckoutCard__installments">Parcelas *</label>
+                  <select id="formCheckoutCard__installments" required>
+                    <option value="1">1x (À vista no cartão)</option>
+                  </select>
+                </div>
+
+                <div id="cardPaymentMessage" class="payment-feedback-msg" style="display: none;"></div>
+
+                <button type="submit" id="formCheckoutCard__submit" class="btn-pay-card">
+                  <span id="btnPayCardText">Pagar Sinal com Cartão</span>
+                  <span id="btnPayCardSpinner" class="spinner" style="display: none;"></span>
+                </button>
+              </form>
+
+              <div class="card-security-footer">
+                <span>🛡️ Seus dados bancários não são salvos pelo Beauty Room. Transação processada com proteção PCI-DSS pelo Mercado Pago.</span>
+              </div>
             </div>
-            <a href="#" id="btnWhatsAppConfirm" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-action">
-              <span>Já fiz o PIX · Enviar comprovante no WhatsApp</span>
-              <span class="btn-arrow">↗</span>
-            </a>
-            <small class="confirm-note">⏳ Seu horário permanece pré-reservado por 30 minutos aguardando o
-              comprovante.</small>
           </div>
 
           <div class="booking-footer">
@@ -680,6 +753,8 @@
       </div>
     </div>
   </div>
+  <!-- SDK Oficial do Mercado Pago v2 -->
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
   <script src="js/script.js" charset="UTF-8"></script>
 </body>
 

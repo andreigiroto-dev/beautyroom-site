@@ -180,6 +180,10 @@ if (lightbox) {
     beneficiaryDisplay: "Thais Leite Pessoa"
   };
 
+  // Configuração do Mercado Pago (Chave Pública do Frontend)
+  // Public Key de teste configurada
+  const MP_PUBLIC_KEY = "TEST-35039ce6-933f-4f5d-954a-d5d72d91cfba";
+
   // Estado do agendamento
   const state = {
     serviceId: "cilios",
@@ -187,8 +191,11 @@ if (lightbox) {
     selectedTime: null,
     clientName: "",
     clientPhone: "",
+    clientEmail: "",
+    clientCpf: "",
     clientNotes: "",
-    currentStep: 1
+    currentStep: 1,
+    paymentMethod: "pix" // 'pix' ou 'card'
   };
 
   // Elementos do DOM
@@ -200,8 +207,21 @@ if (lightbox) {
   const btnNextFromCal = document.getElementById("btnNextFromCal");
   const clientNameInput = document.getElementById("clientName");
   const clientPhoneInput = document.getElementById("clientPhone");
+  const clientEmailInput = document.getElementById("clientEmail");
+  const clientCpfInput = document.getElementById("clientCpf");
   const clientNotesInput = document.getElementById("clientNotes");
   const btnNextToPix = document.getElementById("btnNextToPix");
+
+  // Elementos do Checkout Mercado Pago e PIX
+  const tabPayPix = document.getElementById("tabPayPix");
+  const tabPayCard = document.getElementById("tabPayCard");
+  const viewPayPix = document.getElementById("viewPayPix");
+  const viewPayCard = document.getElementById("viewPayCard");
+  const formCheckoutCard = document.getElementById("formCheckoutCard");
+  const cardPaymentMessage = document.getElementById("cardPaymentMessage");
+  const btnPayCard = document.getElementById("formCheckoutCard__submit");
+  const btnPayCardText = document.getElementById("btnPayCardText");
+  const btnPayCardSpinner = document.getElementById("btnPayCardSpinner");
 
   // Elementos da etapa PIX
   const pixServiceTitle = document.getElementById("pixServiceTitle");
@@ -305,10 +325,14 @@ if (lightbox) {
     if (stepNum === 4) {
       const rawName = clientNameInput ? clientNameInput.value : "";
       const rawPhone = clientPhoneInput ? clientPhoneInput.value : "";
+      const rawEmail = clientEmailInput ? clientEmailInput.value : "";
+      const rawCpf = clientCpfInput ? clientCpfInput.value : "";
       const rawNotes = clientNotesInput ? clientNotesInput.value : "";
 
       const cleanName = sanitizeInput(rawName, 60);
       const cleanPhone = rawPhone.replace(/[^\d()-\s]/g, "").trim().slice(0, 16);
+      const cleanEmail = sanitizeInput(rawEmail, 80);
+      const cleanCpf = rawCpf.replace(/\D/g, "");
       const cleanNotes = sanitizeInput(rawNotes, 200);
 
       if (!cleanName || cleanName.length < 3) {
@@ -321,13 +345,26 @@ if (lightbox) {
         if (clientPhoneInput) clientPhoneInput.focus();
         return;
       }
+      if (!cleanEmail || !cleanEmail.includes("@") || !cleanEmail.includes(".")) {
+        alert("Por favor, informe um e-mail válido para envio do comprovante.");
+        if (clientEmailInput) clientEmailInput.focus();
+        return;
+      }
+      if (!cleanCpf || cleanCpf.length !== 11) {
+        alert("Por favor, preencha um CPF válido (11 dígitos).");
+        if (clientCpfInput) clientCpfInput.focus();
+        return;
+      }
 
       state.clientName = cleanName;
       state.clientPhone = cleanPhone;
+      state.clientEmail = cleanEmail;
+      state.clientCpf = cleanCpf;
       state.clientNotes = cleanNotes;
 
       // Atualiza tela do PIX com os dados selecionados
       setupPixCheckout();
+      initCardForm();
     }
 
     state.currentStep = stepNum;
@@ -523,7 +560,7 @@ if (lightbox) {
     selectDay(candidate);
   }
 
-  // 5. Máscara de Telefone / WhatsApp
+  // 5. Máscara de Telefone / WhatsApp e CPF
   if (clientPhoneInput) {
     clientPhoneInput.addEventListener("input", (e) => {
       let val = e.target.value.replace(/\D/g, "");
@@ -536,6 +573,22 @@ if (lightbox) {
         e.target.value = `(${val}`;
       } else {
         e.target.value = "";
+      }
+    });
+  }
+
+  if (clientCpfInput) {
+    clientCpfInput.addEventListener("input", (e) => {
+      let val = e.target.value.replace(/\D/g, "");
+      if (val.length > 11) val = val.substring(0, 11);
+      if (val.length > 9) {
+        e.target.value = `${val.substring(0, 3)}.${val.substring(3, 6)}.${val.substring(6, 9)}-${val.substring(9)}`;
+      } else if (val.length > 6) {
+        e.target.value = `${val.substring(0, 3)}.${val.substring(3, 6)}.${val.substring(6)}`;
+      } else if (val.length > 3) {
+        e.target.value = `${val.substring(0, 3)}.${val.substring(3)}`;
+      } else {
+        e.target.value = val;
       }
     });
   }
@@ -769,6 +822,178 @@ if (lightbox) {
       if (btnCopyText) btnCopyText.textContent = "Copiar";
       if (btnCopyIcon) btnCopyIcon.textContent = "📋";
     }, 2500);
+  }
+
+  // =========================================================================
+  // 7. CHECKOUT TRANSPARENTE: MERCADO PAGO E CONTROLE DE TABS (PIX / CARTÃO)
+  // =========================================================================
+
+  // Alternância de Abas PIX vs Cartão
+  if (tabPayPix && tabPayCard) {
+    tabPayPix.addEventListener("click", () => {
+      state.paymentMethod = "pix";
+      tabPayPix.classList.add("active");
+      tabPayCard.classList.remove("active");
+      if (viewPayPix) viewPayPix.style.display = "block";
+      if (viewPayCard) viewPayCard.style.display = "none";
+    });
+
+    tabPayCard.addEventListener("click", () => {
+      state.paymentMethod = "card";
+      tabPayCard.classList.add("active");
+      tabPayPix.classList.remove("active");
+      if (viewPayPix) viewPayPix.style.display = "none";
+      if (viewPayCard) viewPayCard.style.display = "block";
+    });
+  }
+
+  let mpInstance = null;
+  let cardFormInstance = null;
+
+  function initCardForm() {
+    if (typeof MercadoPago === "undefined") {
+      console.warn("SDK do Mercado Pago não carregado.");
+      return;
+    }
+
+    if (!mpInstance) {
+      mpInstance = new MercadoPago(MP_PUBLIC_KEY, { locale: "pt-BR" });
+    }
+
+    const s = SERVICES[state.serviceId] || SERVICES.cilios;
+    const amountStr = s.sinal.toFixed(2);
+
+    if (btnPayCardText) {
+      btnPayCardText.textContent = `Pagar Sinal de R$ ${amountStr.replace(".", ",")} no Cartão`;
+    }
+
+    // Se já estiver inicializado, apenas atualiza o valor
+    if (cardFormInstance) {
+      try {
+        cardFormInstance.update();
+      } catch (e) { }
+      return;
+    }
+
+    try {
+      cardFormInstance = mpInstance.cardForm({
+        amount: String(amountStr),
+        iframe: true,
+        form: {
+          id: "formCheckoutCard",
+          cardNumber: {
+            id: "formCheckoutCard__cardNumber",
+            placeholder: "0000 0000 0000 0000"
+          },
+          expirationDate: {
+            id: "formCheckoutCard__expirationDate",
+            placeholder: "MM/AA"
+          },
+          securityCode: {
+            id: "formCheckoutCard__securityCode",
+            placeholder: "123"
+          },
+          cardholderName: {
+            id: "formCheckoutCard__cardholderName",
+            placeholder: "Titular do Cartão"
+          },
+          installments: {
+            id: "formCheckoutCard__installments"
+          }
+        },
+        callbacks: {
+          onFormMounted: (error) => {
+            if (error) return console.warn("Erro ao montar formulário do cartão:", error);
+          },
+          onSubmit: (event) => {
+            event.preventDefault();
+            processCardPayment();
+          }
+        }
+      });
+    } catch (err) {
+      console.error("Falha ao inicializar o CardForm do Mercado Pago:", err);
+    }
+  }
+
+  // Envio seguro do pagamento com cartão para a API da Vercel
+  async function processCardPayment() {
+    if (!cardFormInstance) return;
+
+    if (btnPayCard) btnPayCard.disabled = true;
+    if (btnPayCardText) btnPayCardText.textContent = "Processando pagamento...";
+    if (btnPayCardSpinner) btnPayCardSpinner.style.display = "inline-block";
+    if (cardPaymentMessage) cardPaymentMessage.style.display = "none";
+
+    try {
+      const cardFormData = cardFormInstance.getCardFormData();
+      const s = SERVICES[state.serviceId] || SERVICES.cilios;
+
+      const response = await fetch("/api/process_payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          paymentMethod: "card",
+          transactionAmount: s.sinal,
+          description: `Sinal Beauty Room - ${s.name}`,
+          token: cardFormData.token,
+          installments: cardFormData.installments || 1,
+          paymentMethodId: cardFormData.paymentMethodId,
+          issuerId: cardFormData.issuerId,
+          payer: {
+            email: state.clientEmail,
+            firstName: state.clientName.split(" ")[0] || "Cliente",
+            lastName: state.clientName.split(" ").slice(1).join(" ") || "Beauty Room",
+            identification: {
+              type: "CPF",
+              number: state.clientCpf
+            }
+          }
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && (result.status === "approved" || result.status === "in_process")) {
+        if (cardPaymentMessage) {
+          cardPaymentMessage.className = "payment-feedback-msg success";
+          cardPaymentMessage.textContent = "✓ Pagamento aprovado com sucesso! Sincronizando com a Google Agenda...";
+          cardPaymentMessage.style.display = "block";
+        }
+
+        // Sincroniza com a Google Agenda
+        syncWithGoogleCalendar();
+
+        if (btnPayCardText) btnPayCardText.textContent = "Pagamento Aprovado ✓";
+
+        setTimeout(() => {
+          alert(`🎉 Pagamento aprovado!\n\nSeu agendamento para ${s.name} foi confirmado com sucesso!\nEnviamos os detalhes para o seu e-mail (${state.clientEmail}).`);
+        }, 1200);
+
+      } else {
+        const errorDetail = result.error || "O pagamento não foi aprovado pelo banco emissor. Verifique os dados do cartão e tente novamente.";
+        if (cardPaymentMessage) {
+          cardPaymentMessage.className = "payment-feedback-msg error";
+          cardPaymentMessage.textContent = `❌ ${errorDetail}`;
+          cardPaymentMessage.style.display = "block";
+        }
+        if (btnPayCard) btnPayCard.disabled = false;
+        if (btnPayCardText) btnPayCardText.textContent = "Tentar Novamente";
+      }
+    } catch (err) {
+      console.error("Erro na requisição de pagamento:", err);
+      if (cardPaymentMessage) {
+        cardPaymentMessage.className = "payment-feedback-msg error";
+        cardPaymentMessage.textContent = "❌ Falha na conexão ao processar o cartão. Tente novamente ou use o PIX.";
+        cardPaymentMessage.style.display = "block";
+      }
+      if (btnPayCard) btnPayCard.disabled = false;
+      if (btnPayCardText) btnPayCardText.textContent = "Tentar Novamente";
+    } finally {
+      if (btnPayCardSpinner) btnPayCardSpinner.style.display = "none";
+    }
   }
 
   // Iniciar calendário no mês atual
