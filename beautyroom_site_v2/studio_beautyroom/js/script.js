@@ -844,6 +844,10 @@ if (lightbox) {
       tabPayPix.classList.remove("active");
       if (viewPayPix) viewPayPix.style.display = "none";
       if (viewPayCard) viewPayCard.style.display = "block";
+      // Inicializa ou re-renderiza quando a aba do cartão é exibida
+      setTimeout(() => {
+        initCardForm();
+      }, 50);
     });
   }
 
@@ -878,7 +882,7 @@ if (lightbox) {
     try {
       cardFormInstance = mpInstance.cardForm({
         amount: String(amountStr),
-        iframe: true,
+        iframe: false,
         form: {
           id: "formCheckoutCard",
           cardNumber: {
@@ -904,10 +908,14 @@ if (lightbox) {
         callbacks: {
           onFormMounted: (error) => {
             if (error) return console.warn("Erro ao montar formulário do cartão:", error);
+            console.log("CardForm montado com sucesso");
           },
           onSubmit: (event) => {
             event.preventDefault();
             processCardPayment();
+          },
+          onFetching: (resource) => {
+            console.log("Buscando recurso do Mercado Pago: ", resource);
           }
         }
       });

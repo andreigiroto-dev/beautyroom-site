@@ -686,7 +686,7 @@
               <form id="formCheckoutCard" class="card-form-grid" onsubmit="return false;">
                 <div class="form-field full-width">
                   <label for="formCheckoutCard__cardNumber">Número do Cartão *</label>
-                  <div id="formCheckoutCard__cardNumber" class="mp-input-container"></div>
+                  <input type="text" id="formCheckoutCard__cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="cc-number" required>
                 </div>
 
                 <div class="form-field full-width">
@@ -697,11 +697,11 @@
                 <div class="form-row-2">
                   <div class="form-field">
                     <label for="formCheckoutCard__expirationDate">Validade (MM/AA) *</label>
-                    <div id="formCheckoutCard__expirationDate" class="mp-input-container"></div>
+                    <input type="text" id="formCheckoutCard__expirationDate" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp" required>
                   </div>
                   <div class="form-field">
                     <label for="formCheckoutCard__securityCode">CVV / Cód. Segurança *</label>
-                    <div id="formCheckoutCard__securityCode" class="mp-input-container"></div>
+                    <input type="password" id="formCheckoutCard__securityCode" placeholder="123" maxlength="4" autocomplete="cc-csc" required>
                   </div>
                 </div>
 
