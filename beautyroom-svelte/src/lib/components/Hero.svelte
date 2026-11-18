@@ -32,6 +32,41 @@
       <a href="#galeria" class="text-link">Ver trabalhos <span>↓</span></a>
     </div>
 
+    <!-- [INÍCIO: ILUSTRAÇÃO ANIMADA CÍLIOS PISCANDO - COMENTAR SE DESEJAR REMOVER] -->
+    <div class="hero-lash-badge" aria-hidden="true" title="Beauty Room - Realce do Olhar">
+      <div class="lash-visual-wrap">
+        <svg class="lash-svg" viewBox="0 0 110 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lashGoldGradSvelte" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#bd965e" />
+              <stop offset="50%" stop-color="#d8bd91" />
+              <stop offset="100%" stop-color="#765237" />
+            </linearGradient>
+          </defs>
+          <path class="lash-eyelid" d="M10,42 Q55,14 100,42" stroke="url(#lashGoldGradSvelte)" stroke-width="2.5" stroke-linecap="round" fill="none" />
+          <path class="lash-liner" d="M16,42 Q55,18 94,42" stroke="rgba(189,150,94,0.35)" stroke-width="1.2" stroke-linecap="round" fill="none" />
+          <g class="lash-hairs" stroke="url(#lashGoldGradSvelte)" stroke-width="1.8" stroke-linecap="round">
+            <path d="M22,38 Q20,29 17,24" />
+            <path d="M30,32 Q28,21 24,15" />
+            <path d="M40,27 Q39,14 36,8" />
+            <path d="M50,24 Q50,9 49,3" />
+            <path d="M60,24 Q62,9 65,4" />
+            <path d="M70,27 Q74,13 79,9" />
+            <path d="M80,32 Q86,21 93,17" />
+            <path d="M88,37 Q95,28 102,26" />
+            <path d="M94,40 Q101,35 106,34" />
+          </g>
+          <circle class="lash-sparkle sparkle-1" cx="95" cy="14" r="1.5" fill="#bd965e" />
+          <circle class="lash-sparkle sparkle-2" cx="16" cy="18" r="1.2" fill="#d8bd91" />
+        </svg>
+      </div>
+      <div class="lash-badge-text">
+        <span class="lash-tag">CÍLIOS & OLHAR</span>
+        <span class="lash-sub">Delicadeza em cada fio</span>
+      </div>
+    </div>
+    <!-- [FIM: ILUSTRAÇÃO ANIMADA CÍLIOS PISCANDO] -->
+
     <div class="hero-note">
       <span class="note-star">★</span>
       <span>ATENDIMENTO EXCLUSIVO COM HORA MARCADA</span>
@@ -178,5 +213,118 @@
     0% { left: -100%; }
     25% { left: 160%; }
     100% { left: 160%; }
+  }
+
+  /* Ilustração Cílios Piscando */
+  .hero-lash-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 28px;
+    padding: 12px 20px 12px 14px;
+    background: rgba(255, 250, 244, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(189, 150, 94, 0.35);
+    border-radius: 40px;
+    box-shadow: 0 8px 24px rgba(62, 42, 32, 0.05);
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+  }
+  .hero-lash-badge:hover {
+    transform: translateY(-2px);
+    border-color: #bd965e;
+    box-shadow: 0 12px 28px rgba(189, 150, 94, 0.18);
+  }
+  .lash-visual-wrap {
+    width: 58px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lash-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 2px 4px rgba(189, 150, 94, 0.25));
+  }
+  .lash-eyelid,
+  .lash-liner,
+  .lash-hairs {
+    transform-origin: 55px 42px;
+    animation: eyeBlinkFlutter 4.2s infinite ease-in-out;
+  }
+  .lash-hairs {
+    animation: lashFlutter 4.2s infinite ease-in-out;
+  }
+  .lash-sparkle {
+    animation: sparkleTwinkle 3s infinite ease-in-out;
+  }
+  :global(.sparkle-2) {
+    animation-delay: 1.5s;
+  }
+  .lash-badge-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+  }
+  .lash-tag {
+    font-size: 8.5px;
+    letter-spacing: 2.2px;
+    font-weight: 700;
+    color: #1a120c;
+    text-transform: uppercase;
+  }
+  .lash-sub {
+    font-size: 10px;
+    color: #765237;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+  @keyframes eyeBlinkFlutter {
+    0%, 82%, 100% {
+      transform: scaleY(1);
+    }
+    86% {
+      transform: scaleY(0.08);
+    }
+    89% {
+      transform: scaleY(0.85);
+    }
+    92% {
+      transform: scaleY(0.12);
+    }
+    96% {
+      transform: scaleY(1);
+    }
+  }
+  @keyframes lashFlutter {
+    0%, 82%, 100% {
+      transform: scaleY(1) rotate(0deg);
+    }
+    86% {
+      transform: scaleY(0.15) rotate(-2deg);
+    }
+    89% {
+      transform: scaleY(0.9) rotate(1deg);
+    }
+    92% {
+      transform: scaleY(0.2) rotate(-1deg);
+    }
+    96% {
+      transform: scaleY(1) rotate(0deg);
+    }
+  }
+  @keyframes sparkleTwinkle {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.3);
+    }
   }
 </style>

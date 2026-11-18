@@ -1511,4 +1511,137 @@ h1 em,h2 em { color: var(--brown); font-weight: 400; }
   100% { left: 160%; }
 }
 
+/* ==========================================================================
+   ILUSTRAÇÃO ANIMADA: CÍLIOS PISCANDO (HERO SECTION)
+   Comente este bloco caso deseje remover o efeito
+   ========================================================================== */
+.hero-lash-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 12px 20px 12px 14px;
+  background: rgba(255, 250, 244, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(189, 150, 94, 0.35);
+  border-radius: 40px;
+  box-shadow: 0 8px 24px rgba(62, 42, 32, 0.05);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.hero-lash-badge:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 12px 28px rgba(189, 150, 94, 0.18);
+}
+
+.lash-visual-wrap {
+  width: 58px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lash-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 2px 4px rgba(189, 150, 94, 0.25));
+}
+
+/* Animação do Piscar dos Cílios e Pálpebra */
+.lash-eyelid,
+.lash-liner,
+.lash-hairs {
+  transform-origin: 55px 42px;
+  animation: eyeBlinkFlutter 4.2s infinite ease-in-out;
+}
+
+/* Cílios acompanham o movimento com leve flutter */
+.lash-hairs {
+  animation: lashFlutter 4.2s infinite ease-in-out;
+}
+
+.lash-sparkle {
+  animation: sparkleTwinkle 3s infinite ease-in-out;
+}
+
+.sparkle-2 {
+  animation-delay: 1.5s;
+}
+
+.lash-badge-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.lash-tag {
+  font-size: 8.5px;
+  letter-spacing: 2.2px;
+  font-weight: 700;
+  color: var(--espresso);
+  text-transform: uppercase;
+}
+
+.lash-sub {
+  font-size: 10px;
+  color: var(--brown);
+  font-style: italic;
+  letter-spacing: 0.3px;
+}
+
+/* Ciclo realista de piscar: olho aberto por 3.5s, pisca suave e rápido 2x */
+@keyframes eyeBlinkFlutter {
+  0%, 82%, 100% {
+    transform: scaleY(1);
+  }
+  86% {
+    transform: scaleY(0.08); /* Pisca completo */
+  }
+  89% {
+    transform: scaleY(0.85); /* Reabre rápido */
+  }
+  92% {
+    transform: scaleY(0.12); /* Segundo toque suave */
+  }
+  96% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes lashFlutter {
+  0%, 82%, 100% {
+    transform: scaleY(1) rotate(0deg);
+  }
+  86% {
+    transform: scaleY(0.15) rotate(-2deg);
+  }
+  89% {
+    transform: scaleY(0.9) rotate(1deg);
+  }
+  92% {
+    transform: scaleY(0.2) rotate(-1deg);
+  }
+  96% {
+    transform: scaleY(1) rotate(0deg);
+  }
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+
 
