@@ -142,7 +142,15 @@
 </section>
 
 <style>
-  .hero { min-height: 650px; display: grid; grid-template-columns: 48% 52%; padding: 50px 7.2% 65px; background: var(--cream); position: relative; overflow: hidden; }
+  .hero { 
+    min-height: clamp(520px, 80vh, 720px); 
+    display: grid; 
+    grid-template-columns: 48% 52%; 
+    padding: clamp(30px, 4vw, 55px) clamp(16px, 6vw, 7.2%) clamp(40px, 5vw, 65px); 
+    background: var(--cream); 
+    position: relative; 
+    overflow: hidden; 
+  }
   
   /* Camada Artística Orgânica Dourada */
   .hero-organic-layer {
@@ -173,16 +181,70 @@
     }
   }
 
-  .hero-copy { align-self: center; padding: 35px 6% 35px 0; position: relative; z-index: 2; }
-  .hero h1 { margin: 25px 0 20px; font: 500 clamp(48px,5.5vw,78px)/.99 "Playfair Display",serif; letter-spacing: -2px; color: var(--espresso); }
-  .hero-text { max-width: 410px; color: var(--muted); font-size: 13px; line-height: 2; }
-  .hero-actions { display: flex; align-items: center; gap: 27px; flex-wrap: wrap; margin-top: 32px; }
-  .hero-note { display: flex; align-items: center; gap: 12px; margin-top: 75px; color: var(--muted); font-size: 8px; letter-spacing: 2px; line-height: 1.7; }
-  .note-star { color: var(--gold); font-size: 29px; }
+  .hero-copy { 
+    align-self: center; 
+    padding: clamp(20px, 3vw, 35px) clamp(10px, 4vw, 6%) clamp(20px, 3vw, 35px) 0; 
+    position: relative; 
+    z-index: 2; 
+  }
+  .hero h1 { 
+    margin: clamp(14px, 2.5vw, 25px) 0 clamp(12px, 2vw, 20px); 
+    font: 500 clamp(36px, 5vw, 72px)/1.02 "Playfair Display", serif; 
+    letter-spacing: -1.5px; 
+    color: var(--espresso); 
+    word-break: break-word;
+  }
+  .hero-text { 
+    max-width: 420px; 
+    color: var(--muted); 
+    font-size: clamp(12px, 1.1vw, 13.5px); 
+    line-height: 1.85; 
+  }
+  .hero-actions { 
+    display: flex; 
+    align-items: center; 
+    gap: clamp(14px, 2vw, 27px); 
+    flex-wrap: wrap; 
+    margin-top: clamp(22px, 3vw, 32px); 
+  }
+  .hero-note { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    margin-top: clamp(35px, 6vw, 75px); 
+    color: var(--muted); 
+    font-size: clamp(7.5px, 0.9vw, 8.5px); 
+    letter-spacing: 2px; 
+    line-height: 1.7; 
+  }
+  .note-star { color: var(--gold); font-size: 26px; }
   
-  .hero-visual { min-height: 520px; position: relative; padding: 0 0 28px 28px; }
-  .hero-duo { display: flex; height: 100%; min-height: 520px; position: relative; overflow: hidden; background: var(--sand); border: 1px solid var(--line); box-shadow: 0 20px 45px rgba(62,42,32,.08); }
-  .hero-duo-panel { position: relative; flex: 1 1 50%; min-height: 520px; overflow: hidden; display: block; text-decoration: none; transition: flex .65s cubic-bezier(.22,1,.36,1), opacity .45s ease, filter .45s ease; }
+  .hero-visual { 
+    min-height: clamp(380px, 45vw, 540px); 
+    position: relative; 
+    padding: 0 0 24px clamp(12px, 2.5vw, 28px); 
+    z-index: 2;
+  }
+  .hero-duo { 
+    display: flex; 
+    height: 100%; 
+    min-height: clamp(380px, 45vw, 540px); 
+    position: relative; 
+    overflow: hidden; 
+    background: var(--sand); 
+    border: 1px solid var(--line); 
+    box-shadow: 0 20px 45px rgba(62,42,32,.08); 
+    border-radius: 4px;
+  }
+  .hero-duo-panel { 
+    position: relative; 
+    flex: 1 1 50%; 
+    min-height: 100%; 
+    overflow: hidden; 
+    display: block; 
+    text-decoration: none; 
+    transition: flex .65s cubic-bezier(.22,1,.36,1), opacity .45s ease, filter .45s ease; 
+  }
   .hero-duo-portfolio { cursor: pointer; }
   .hero-duo-bg { position: absolute; inset: 0; background-size: cover; background-repeat: no-repeat; transition: transform .8s cubic-bezier(.22,1,.36,1), filter .5s ease; }
   .hero-bg-main { background-image: url("/assets/img/banner.jpg"); background-position: center 35%; }
@@ -194,23 +256,35 @@
   .hero-duo-main::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to right, transparent 65%, rgba(248,243,236,.55) 100%); pointer-events: none; z-index: 2; }
   .hero-duo-portfolio::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to left, transparent 65%, rgba(248,243,236,.55) 100%); pointer-events: none; z-index: 2; }
 
-  .hero-duo-badge { position: absolute; bottom: 20px; left: 20px; z-index: 4; display: inline-flex; align-items: center; gap: 7px; background: rgba(255,250,244,.93); backdrop-filter: blur(10px); border: 1px solid var(--gold-light); color: var(--espresso); font-size: 8px; letter-spacing: 2px; font-weight: 600; padding: 7px 12px; pointer-events: none; }
+  .hero-duo-badge { position: absolute; bottom: 16px; left: 16px; z-index: 4; display: inline-flex; align-items: center; gap: 7px; background: rgba(255,250,244,.93); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--gold-light); color: var(--espresso); font-size: 8px; letter-spacing: 2px; font-weight: 600; padding: 6px 10px; pointer-events: none; }
   .hero-duo-badge span { color: var(--gold); font-size: 9px; }
-  .hero-duo-badge-portfolio { left: auto; right: 20px; }
+  .hero-duo-badge-portfolio { left: auto; right: 16px; }
 
   .hero-duo:hover .hero-duo-panel:not(:hover) { flex: .78; opacity: .68; filter: grayscale(18%) contrast(.92); }
   .hero-duo-panel:hover { flex: 1.22; opacity: 1; filter: none; }
   .hero-duo-panel:hover .hero-duo-bg { transform: scale(1.05); }
 
-  .photo-caption { position: absolute; bottom: 0; left: 28px; right: 0; display: flex; justify-content: space-between; padding: 11px 0 0; color: var(--muted); font-size: 8px; letter-spacing: 2px; }
-  .hero-stamp { position: absolute; left: -24px; top: 45px; width: 105px; height: 105px; border-radius: 50%; background: var(--ivory); border: 1px solid var(--gold-light); display: grid; place-content: center; text-align: center; color: var(--brown); font-size: 9px; line-height: 1.5; letter-spacing: 2px; transform: rotate(-12deg); z-index: 5; }
-  .hero-stamp i { font: italic 15px "Playfair Display",serif; letter-spacing: 0; }
+  .photo-caption { position: absolute; bottom: 0; left: 28px; right: 0; display: flex; justify-content: space-between; padding: 8px 0 0; color: var(--muted); font-size: 8px; letter-spacing: 2px; }
+  .hero-stamp { position: absolute; left: -20px; top: 35px; width: 95px; height: 95px; border-radius: 50%; background: var(--ivory); border: 1px solid var(--gold-light); display: grid; place-content: center; text-align: center; color: var(--brown); font-size: 8.5px; line-height: 1.45; letter-spacing: 1.8px; transform: rotate(-12deg); z-index: 5; box-shadow: 0 4px 15px rgba(62,42,32,0.06); }
+  .hero-stamp i { font: italic 14px "Playfair Display",serif; letter-spacing: 0; }
 
-  @media (max-width: 900px) {
-    .hero { grid-template-columns: 1fr; padding: 40px 6%; }
+  /* Adaptabilidade Dinâmica para Tablets e Smartphones */
+  @media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr; padding: 40px 6% 50px; }
     .hero-copy { padding: 0 0 35px; }
-    .hero-visual { padding: 0; min-height: 400px; }
-    .hero-stamp { display: none; }
+    .hero-visual { padding: 0; min-height: 420px; }
+    .hero-duo { min-height: 420px; }
+    .photo-caption { left: 0; }
+    .hero-stamp { left: 15px; top: 15px; }
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 25px 5% 45px; }
+    .hero h1 { font-size: clamp(34px, 9vw, 46px); letter-spacing: -1px; }
+    .hero-visual, .hero-duo { min-height: 350px; }
+    .hero-stamp { width: 75px; height: 75px; font-size: 7px; top: 10px; left: 10px; }
+    .hero-stamp i { font-size: 11px; }
+    .photo-caption { font-size: 7px; letter-spacing: 1px; }
   }
 
   /* NOVO BOTÃO DESTAQUE HERO: GLOW DOURADO EDITORIAL */
@@ -218,7 +292,7 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    padding: 16px 28px;
+    padding: clamp(13px, 1.8vw, 16px) clamp(20px, 2.5vw, 28px);
     background: linear-gradient(135deg, #bd965e 0%, #9e7640 100%);
     color: #ffffff !important;
     border-radius: 8px;
@@ -228,6 +302,7 @@
     box-shadow: 0 10px 28px rgba(189, 150, 94, 0.35);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     text-align: left;
+    max-width: 100%;
   }
   .hero-cta-glow:hover {
     transform: translateY(-3px) scale(1.02);
@@ -241,13 +316,14 @@
     z-index: 2;
   }
   .cta-glow-main {
-    font-size: 13.5px;
+    font-size: clamp(12.5px, 1.5vw, 14px);
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
     color: #ffffff;
+    white-space: nowrap;
   }
   .cta-glow-main .cta-arrow {
     color: #fffaf4;
@@ -258,10 +334,11 @@
     transform: translate(3px, -3px);
   }
   .cta-glow-sub {
-    font-size: 9.5px;
+    font-size: clamp(8.5px, 1vw, 9.5px);
     color: rgba(255, 255, 255, 0.85);
     letter-spacing: 0.5px;
     font-weight: 400;
+    white-space: nowrap;
   }
   .cta-glow-shine {
     position: absolute;
@@ -289,7 +366,7 @@
     z-index: 10;
     display: inline-flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     padding: 10px 18px 10px 14px;
     background: rgba(255, 252, 248, 0.94);
     backdrop-filter: blur(12px);
@@ -313,19 +390,113 @@
       transform: translateY(-8px);
     }
   }
-  @media (max-width: 1200px) {
+  @media (max-width: 1280px) {
     .hero-lash-badge {
-      right: -25px;
+      right: -20px;
+      padding: 8px 14px;
     }
   }
-  @media (max-width: 991px) {
+  @media (max-width: 1024px) {
     .hero-lash-badge {
       position: static;
-      margin-top: 24px;
+      margin-top: 20px;
       align-self: flex-start;
       animation: none;
+      box-shadow: 0 6px 18px rgba(62, 42, 32, 0.06);
     }
   }
+  .lash-visual-wrap {
+    width: 52px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lash-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 2px 4px rgba(189, 150, 94, 0.25));
+  }
+  .lash-eyelid,
+  .lash-liner,
+  .lash-hairs {
+    transform-origin: 55px 42px;
+    animation: eyeBlinkFlutter 4.2s infinite ease-in-out;
+  }
+  .lash-hairs {
+    animation: lashFlutter 4.2s infinite ease-in-out;
+  }
+  .lash-sparkle {
+    animation: sparkleTwinkle 3s infinite ease-in-out;
+  }
+  :global(.sparkle-2) {
+    animation-delay: 1.5s;
+  }
+  .lash-badge-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+  }
+  .lash-tag {
+    font-size: 8px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #1a120c;
+    text-transform: uppercase;
+  }
+  .lash-sub {
+    font-size: 9.5px;
+    color: #765237;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+  @keyframes eyeBlinkFlutter {
+    0%, 82%, 100% {
+      transform: scaleY(1);
+    }
+    86% {
+      transform: scaleY(0.08);
+    }
+    89% {
+      transform: scaleY(0.85);
+    }
+    92% {
+      transform: scaleY(0.12);
+    }
+    96% {
+      transform: scaleY(1);
+    }
+  }
+  @keyframes lashFlutter {
+    0%, 82%, 100% {
+      transform: scaleY(1) rotate(0deg);
+    }
+    86% {
+      transform: scaleY(0.15) rotate(-2deg);
+    }
+    89% {
+      transform: scaleY(0.9) rotate(1deg);
+    }
+    92% {
+      transform: scaleY(0.2) rotate(-1deg);
+    }
+    96% {
+      transform: scaleY(1) rotate(0deg);
+    }
+  }
+  @keyframes sparkleTwinkle {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.3);
+    }
+  }
+</style>
   .lash-visual-wrap {
     width: 58px;
     height: 34px;
