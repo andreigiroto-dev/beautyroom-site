@@ -1,5 +1,7 @@
 {
-  "outputDirectory": "beautyroom_site_v2/studio_beautyroom",
+  "framework": "sveltekit",
+  "buildCommand": "cd beautyroom-svelte && npm install && npm run build",
+  "installCommand": "cd beautyroom-svelte && npm install",
   "cleanUrls": true,
   "headers": [
     {
@@ -29,4 +31,3 @@
     }
   ]
 }
-
