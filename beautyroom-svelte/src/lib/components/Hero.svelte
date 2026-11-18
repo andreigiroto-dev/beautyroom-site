@@ -43,10 +43,9 @@
     <div class="eyebrow">
       <span></span> Mauá · São Paulo
     </div>
-    <h1>Realce seu olhar com <em>delicadeza</em> e precisão.</h1>
+    <h1>Seu olhar,<br><em>sua beleza.</em></h1>
     <p class="hero-text">
-      Especialista em extensão de cílios e design de sobrancelhas. Um atendimento
-      personalizado, criado para valorizar os traços do seu rosto com naturalidade e conforto.
+      Realçamos a sua beleza com cuidado, delicadeza e atenção a cada detalhe. Um momento só seu, pensado para valorizar quem você é.
     </p>
 
     <div class="hero-actions">
@@ -65,7 +64,7 @@
         Agendar Horário <span>↗</span>
       </button>
       -->
-      <a href="#galeria" class="text-link">Ver trabalhos <span>↓</span></a>
+      <a href="#servicos" class="text-link">Conheça os procedimentos <span>↓</span></a>
     </div>
 
     <!-- [INÍCIO: ILUSTRAÇÃO ANIMADA CÍLIOS PISCANDO - COMENTAR SE DESEJAR REMOVER] -->
@@ -405,95 +404,21 @@
       box-shadow: 0 6px 18px rgba(62, 42, 32, 0.06);
     }
   }
-  .lash-visual-wrap {
-    width: 52px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .lash-svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    filter: drop-shadow(0 2px 4px rgba(189, 150, 94, 0.25));
-  }
-  .lash-eyelid,
-  .lash-liner,
-  .lash-hairs {
-    transform-origin: 55px 42px;
-    animation: eyeBlinkFlutter 4.2s infinite ease-in-out;
-  }
-  .lash-hairs {
-    animation: lashFlutter 4.2s infinite ease-in-out;
-  }
-  .lash-sparkle {
-    animation: sparkleTwinkle 3s infinite ease-in-out;
-  }
-  :global(.sparkle-2) {
-    animation-delay: 1.5s;
-  }
-  .lash-badge-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    text-align: left;
-  }
-  .lash-tag {
-    font-size: 8px;
-    letter-spacing: 2px;
-    font-weight: 700;
-    color: #1a120c;
-    text-transform: uppercase;
-  }
-  .lash-sub {
-    font-size: 9.5px;
-    color: #765237;
-    font-style: italic;
-    letter-spacing: 0.3px;
-  }
-  @keyframes eyeBlinkFlutter {
-    0%, 82%, 100% {
-      transform: scaleY(1);
+
+  @media (max-width: 600px) {
+    .hero-actions {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
     }
-    86% {
-      transform: scaleY(0.08);
+    .hero-actions .text-link {
+      margin: 4px auto 0;
+      text-align: center;
     }
-    89% {
-      transform: scaleY(0.85);
-    }
-    92% {
-      transform: scaleY(0.12);
-    }
-    96% {
-      transform: scaleY(1);
-    }
-  }
-  @keyframes lashFlutter {
-    0%, 82%, 100% {
-      transform: scaleY(1) rotate(0deg);
-    }
-    86% {
-      transform: scaleY(0.15) rotate(-2deg);
-    }
-    89% {
-      transform: scaleY(0.9) rotate(1deg);
-    }
-    92% {
-      transform: scaleY(0.2) rotate(-1deg);
-    }
-    96% {
-      transform: scaleY(1) rotate(0deg);
-    }
-  }
-  @keyframes sparkleTwinkle {
-    0%, 100% {
-      opacity: 0.3;
-      transform: scale(0.8);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.3);
+    .hero-lash-badge {
+      align-self: center;
+      margin: 22px auto 0;
     }
   }
 </style>

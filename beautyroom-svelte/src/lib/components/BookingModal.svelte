@@ -31,8 +31,8 @@
     selectedServiceId: string;
   }>();
 
-  // Categoria expandida na Etapa 1 ('cilios' aberta por padrão)
-  let expandedCategory = $state<'cilios' | 'sobrancelha' | 'labios' | 'combo' | null>('cilios');
+  // Categoria expandida na Etapa 1 (inicia fechada para mostrar todos os botões flutuantes)
+  let expandedCategory = $state<'cilios' | 'sobrancelha' | 'labios' | 'combo' | null>(null);
 
   function toggleCategory(catId: 'cilios' | 'sobrancelha' | 'labios' | 'combo', isExpandable: boolean, directId?: string) {
     if (!isExpandable && directId) {
