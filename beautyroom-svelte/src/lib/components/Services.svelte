@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ArrowUpRight } from 'lucide-svelte';
   import { SERVICES } from '$lib/config';
   let { onOpenBooking } = $props<{ onOpenBooking: (serviceId?: string) => void }>();
   const serviceList = Object.values(SERVICES);
@@ -24,7 +25,7 @@
           A partir de <b>R$ {service.price.toFixed(2).replace('.', ',')}</b>
         </div>
         <button type="button" class="service-btn" onclick={() => onOpenBooking(service.id)}>
-          Agendar <span>↗</span>
+          Agendar <ArrowUpRight size={14} style="margin-left: 6px; color: var(--gold);" />
         </button>
       </article>
     {/each}
@@ -46,8 +47,7 @@
   .service-card p { color: var(--muted); font-size: 11px; line-height: 1.8; margin-bottom: 16px; flex: 1; }
   .service-price-tag { font-size: 11.5px; color: var(--espresso); margin-bottom: 14px; border-top: 1px dashed var(--line); padding-top: 10px; }
   .service-price-tag b { color: var(--gold); font-size: 13px; }
-  .service-btn { background: none; border: 0; padding: 0; text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--gold-light); padding-bottom: 7px; cursor: pointer; color: var(--ink); }
-  .service-btn span { color: var(--gold); margin-left: 10px; }
+  .service-btn { background: none; border: 0; padding: 0; text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--gold-light); padding-bottom: 7px; cursor: pointer; color: var(--ink); display: inline-flex; align-items: center; }
 
   @media (max-width: 800px) {
     .section-heading { display: block; }
