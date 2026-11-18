@@ -15,18 +15,32 @@
     ArrowRight,
     ArrowLeft,
     X,
-    FileText
+    FileText,
+    ChevronDown,
+    ChevronUp
   } from 'lucide-svelte';
-  import { SERVICES, GOOGLE_CALENDAR_WEBHOOK_URL, PIX_CONFIG, MP_PUBLIC_KEY } from '$lib/config';
+  import { SERVICES, CATEGORIES, GOOGLE_CALENDAR_WEBHOOK_URL, PIX_CONFIG, MP_PUBLIC_KEY } from '$lib/config';
   import { generatePixPayload } from '$lib/pix';
 
   let {
     isOpen = $bindable(false),
-    selectedServiceId = $bindable('cilios')
+    selectedServiceId = $bindable('cilios-tradicionais')
   } = $props<{
     isOpen: boolean;
     selectedServiceId: string;
   }>();
+
+  // Categoria expandida na Etapa 1 ('cilios' aberta por padrão)
+  let expandedCategory = $state<'cilios' | 'sobrancelha' | 'labios' | 'combo' | null>('cilios');
+
+  function toggleCategory(catId: 'cilios' | 'sobrancelha' | 'labios' | 'combo', isExpandable: boolean, directId?: string) {
+    if (!isExpandable && directId) {
+      selectedServiceId = directId;
+      expandedCategory = null;
+      return;
+    }
+    expandedCategory = expandedCategory === catId ? null : catId;
+  }
 
   // Estado do Stepper e Formulário
   let currentStep = $state(1);
@@ -69,7 +83,7 @@
   let qrLoading = $state(true);
 
   // Serviço selecionado reativo
-  let currentService = $derived(SERVICES[selectedServiceId] || SERVICES.cilios);
+  let currentService = $derived(SERVICES[selectedServiceId] || SERVICES['cilios-tradicionais']);
   let priceTotal = $derived(currentService.price);
   let priceSinal = $derived(currentService.sinal);
   let priceBalance = $derived(priceTotal - priceSinal);
@@ -456,42 +470,114 @@
 
       <!-- Corpo do Modal com Animações Svelte -->
       <div class="booking-body">
-        <!-- ETAPA 1: Procedimentos -->
+        <!-- ETAPA 1: Procedimentos Organizados por Categorias Interativas -->
         {#if currentStep === 1}
           <div class="booking-step" in:fly={{ x: 20, duration: 280 }}>
             <div class="step-intro">
-              <h3>1. Escolha o procedimento desejado</h3>
-              <p>O sinal de reserva (30%) é calculado automaticamente para assegurar a sua vaga.</p>
+              <h3>1. Escolha a categoria e o procedimento</h3>
+              <p>Toque nas categorias para expandir os procedimentos e selecione o serviço desejado.</p>
             </div>
 
-            <div class="services-select-grid">
-              {#each Object.values(SERVICES) as service}
-                <label class="service-option">
-                  <input
-                    type="radio"
-                    name="bookingService"
-                    value={service.id}
-                    checked={selectedServiceId === service.id}
-                    onchange={() => (selectedServiceId = service.id)}
-                  />
-                  <div class="service-option-card">
-                    <div class="service-card-top">
-                      <span class="service-badge-pill">{service.badge}</span>
-                      <span class="service-icon">{service.symbol}</span>
+            <!-- Grade dos 4 Botões Flutuantes Principais -->
+            <div class="categories-accordion-list">
+              {#each CATEGORIES as cat}
+                {@const isCombo = !cat.isExpandable}
+                {@const isExpanded = expandedCategory === cat.id}
+                {@const isSelectedDirect = isCombo && selectedServiceId === cat.directServiceId}
+                {@const hasSelectedChild = cat.services.some(s => s.id === selectedServiceId)}
+
+                <div class="category-block {isExpanded ? 'expanded' : ''} {isCombo ? 'combo-block' : ''} {isSelectedDirect || hasSelectedChild ? 'has-selection' : ''}">
+                  <!-- Botão Flutuante Interativo -->
+                  <button
+                    type="button"
+                    class="category-float-btn {isSelectedDirect ? 'selected-combo' : ''}"
+                    onclick={() => toggleCategory(cat.id, cat.isExpandable, cat.directServiceId)}
+                  >
+                    <div class="cat-btn-left">
+                      <span class="cat-icon-badge">{cat.icon}</span>
+                      <div class="cat-info">
+                        <div class="cat-title-row">
+                          <h4 class="cat-title">{cat.title}</h4>
+                          {#if isCombo}
+                            <span class="combo-pill">SELEÇÃO DIRETA</span>
+                          {/if}
+                        </div>
+                        <span class="cat-sub">{cat.subtitle}</span>
+                      </div>
                     </div>
-                    <h4>{service.name}</h4>
-                    <p>{service.description}</p>
-                    <div class="service-pricing-row">
-                      <div class="price-full">Total: <b>R$ {service.price.toFixed(2).replace('.', ',')}</b></div>
-                      <div class="price-sinal-tag">Sinal (30%): <b>R$ {service.sinal.toFixed(2).replace('.', ',')}</b></div>
+
+                    <div class="cat-btn-right">
+                      {#if isCombo}
+                        <div class="combo-direct-price">
+                          <span class="combo-price-val">R$ 180</span>
+                          <span class="combo-sinal-tag">Sinal R$ 54</span>
+                        </div>
+                      {:else}
+                        <div class="cat-toggle-action">
+                          <span class="cat-count-pill">{cat.services.length} opções</span>
+                          <span class="cat-chevron">
+                            {#if isExpanded}
+                              <ChevronUp size={16} />
+                            {:else}
+                              <ChevronDown size={16} />
+                            {/if}
+                          </span>
+                        </div>
+                      {/if}
                     </div>
-                  </div>
-                </label>
+                  </button>
+
+                  <!-- Painel Expansível dos Procedimentos -->
+                  {#if isExpanded && cat.isExpandable}
+                    <div class="category-items-panel" in:fly={{ y: -8, duration: 220 }}>
+                      <div class="category-items-grid">
+                        {#each cat.services as service}
+                          {@const isSelected = selectedServiceId === service.id}
+                          <label class="service-item-card {isSelected ? 'selected' : ''}">
+                            <input
+                              type="radio"
+                              name="bookingService"
+                              value={service.id}
+                              checked={isSelected}
+                              onchange={() => (selectedServiceId = service.id)}
+                            />
+                            <div class="item-card-inner">
+                              <div class="item-card-header">
+                                <div class="item-name-wrap">
+                                  <span class="item-symbol">{service.symbol || '✦'}</span>
+                                  <span class="item-name">{service.name}</span>
+                                </div>
+                                {#if service.badge}
+                                  <span class="item-badge">{service.badge}</span>
+                                {/if}
+                              </div>
+
+                              {#if service.description}
+                                <p class="item-desc">{service.description}</p>
+                              {/if}
+
+                              <div class="item-footer">
+                                <span class="item-duration"><Clock size={12} /> {service.duration}</span>
+                                <div class="item-pricing">
+                                  <span class="item-total">Total: <b>R$ {service.price.toFixed(2).replace('.', ',')}</b></span>
+                                  <span class="item-sinal">Sinal (30%): <b>R$ {service.sinal.toFixed(2).replace('.', ',')}</b></span>
+                                </div>
+                              </div>
+                            </div>
+                          </label>
+                        {/each}
+                      </div>
+                    </div>
+                  {/if}
+                </div>
               {/each}
             </div>
 
             <div class="booking-footer">
-              <div></div>
+              <div class="selected-summary-indicator">
+                <span class="indicator-label">Selecionado:</span>
+                <span class="indicator-name"><b>{currentService.name}</b> (R$ {priceTotal.toFixed(2).replace('.', ',')})</span>
+              </div>
               <button type="button" class="btn-step btn-next" onclick={nextStep}>
                 Continuar para Data e Horário <ArrowRight size={14} />
               </button>
@@ -819,19 +905,318 @@
   .step-intro h3 { font: 500 18px "Playfair Display", serif; color: var(--espresso); margin: 0 0 4px; }
   .step-intro p { color: var(--muted); font-size: 11px; margin: 0; }
 
-  .services-select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
-  .service-option { cursor: pointer; display: block; }
-  .service-option input { position: absolute; opacity: 0; pointer-events: none; }
-  .service-option-card { border: 1px solid var(--line); background: rgba(255, 250, 244, 0.7); padding: 16px; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; min-height: 135px; transition: all 0.25s; }
-  .service-option input:checked + .service-option-card { border-color: var(--gold); background: #ffffff; box-shadow: 0 8px 24px rgba(189, 150, 94, 0.2); }
-  .service-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .service-badge-pill { font-size: 7.5px; letter-spacing: 1.5px; font-weight: 700; color: var(--gold); background: rgba(189, 150, 94, 0.12); padding: 3px 8px; border-radius: 20px; }
-  .service-icon { color: var(--gold); font-size: 16px; }
-  .service-option-card h4 { font: 600 13.5px "DM Sans", sans-serif; color: var(--espresso); margin: 0 0 4px; }
-  .service-option-card p { color: var(--muted); font-size: 10.5px; line-height: 1.4; margin: 0 0 10px; }
-  .service-pricing-row { display: flex; justify-content: space-between; border-top: 1px dashed var(--line); padding-top: 10px; font-size: 11px; }
-  .price-sinal-tag { background: var(--espresso); color: var(--ivory); padding: 3px 8px; border-radius: 3px; font-size: 9.5px; }
-  .price-sinal-tag b { color: var(--gold-light); }
+  /* Acordeão de Categorias e Botões Flutuantes Interativos */
+  .categories-accordion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .category-block {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 14px rgba(62, 42, 32, 0.04);
+  }
+
+  .category-block.has-selection {
+    border-color: var(--gold);
+    box-shadow: 0 6px 20px rgba(189, 150, 94, 0.16);
+  }
+
+  .category-block.expanded {
+    border-color: rgba(189, 150, 94, 0.5);
+    box-shadow: 0 8px 25px rgba(62, 42, 32, 0.08);
+  }
+
+  .category-float-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .category-float-btn:hover {
+    background: rgba(248, 243, 236, 0.6);
+  }
+
+  .cat-btn-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .cat-icon-badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, #ffffff 0%, var(--ivory) 100%);
+    border: 1px solid var(--gold-light);
+    display: grid;
+    place-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(189, 150, 94, 0.15);
+    flex-shrink: 0;
+  }
+
+  .cat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .cat-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cat-title {
+    font: 600 15px "DM Sans", sans-serif;
+    color: var(--espresso);
+    margin: 0;
+  }
+
+  .combo-pill {
+    font-size: 7.5px;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--brown) 100%);
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  .cat-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .cat-btn-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cat-toggle-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cat-count-pill {
+    font-size: 10px;
+    color: var(--brown);
+    background: rgba(189, 150, 94, 0.12);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .cat-chevron {
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+  }
+
+  /* Combo Direto Especial */
+  .combo-block {
+    background: linear-gradient(to right, #ffffff, rgba(255, 250, 244, 0.9));
+    border: 1.5px dashed var(--gold);
+  }
+
+  .category-float-btn.selected-combo {
+    background: rgba(189, 150, 94, 0.12);
+  }
+
+  .combo-direct-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .combo-price-val {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--espresso);
+  }
+
+  .combo-sinal-tag {
+    font-size: 9px;
+    color: var(--brown);
+    background: var(--ivory);
+    border: 1px solid var(--gold-light);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  /* Painel Expansível de Serviços */
+  .category-items-panel {
+    border-top: 1px solid var(--line);
+    background: var(--cream);
+    padding: 16px 20px;
+  }
+
+  .category-items-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .service-item-card {
+    cursor: pointer;
+    display: block;
+  }
+
+  .service-item-card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .item-card-inner {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 110px;
+    transition: all 0.25s ease;
+  }
+
+  .service-item-card.selected .item-card-inner {
+    border-color: var(--gold);
+    box-shadow: 0 4px 16px rgba(189, 150, 94, 0.24);
+    background: #fffdf9;
+  }
+
+  .item-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .item-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .item-symbol {
+    font-size: 13px;
+  }
+
+  .item-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--espresso);
+    line-height: 1.25;
+  }
+
+  .item-badge {
+    font-size: 7.5px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: var(--gold);
+    background: rgba(189, 150, 94, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .item-desc {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.4;
+    margin: 0 0 10px;
+  }
+
+  .item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px dashed var(--line);
+    padding-top: 8px;
+  }
+
+  .item-duration {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9.5px;
+    color: var(--muted);
+  }
+
+  .item-pricing {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .item-total {
+    font-size: 11.5px;
+    color: var(--espresso);
+  }
+
+  .item-sinal {
+    font-size: 9.5px;
+    background: var(--espresso);
+    color: var(--ivory);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .item-sinal b {
+    color: var(--gold-light);
+  }
+
+  .selected-summary-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  .selected-summary-indicator b {
+    color: var(--espresso);
+  }
+
+  @media (max-width: 768px) {
+    .category-items-grid {
+      grid-template-columns: 1fr;
+    }
+    .category-float-btn {
+      padding: 14px 16px;
+    }
+    .cat-icon-badge {
+      width: 36px;
+      height: 36px;
+      font-size: 17px;
+    }
+    .cat-title {
+      font-size: 13.5px;
+    }
+    .cat-count-pill {
+      display: none;
+    }
+  }
 
   /* Calendário */
   .calendar-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; margin-bottom: 20px; }

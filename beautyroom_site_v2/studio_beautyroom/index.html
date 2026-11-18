@@ -466,107 +466,387 @@
       <!-- Corpo com as Etapas -->
       <div class="booking-body">
 
-        <!-- ETAPA 1: Seleção de Procedimento -->
+        <!-- ETAPA 1: Seleção de Procedimento Organizado por Categorias -->
         <div class="booking-step active" data-step="1">
           <div class="step-intro">
-            <h3>1. Escolha o procedimento desejado</h3>
-            <p>O valor do sinal de reserva (30%) é calculado automaticamente para garantir o seu horário.</p>
+            <h3>1. Escolha a categoria e o procedimento</h3>
+            <p>Toque nas categorias para expandir os procedimentos e escolha o serviço desejado.</p>
           </div>
 
-          <div class="services-select-grid">
-            <!-- [INÍCIO: PROCEDIMENTO DE TESTE R$ 0,01 NO TOPO - DESATIVADO/COMENTADO]
-            <label class="service-option" data-service-id="teste" style="grid-column: 1 / -1;">
-              <input type="radio" name="bookingService" value="teste">
-              <div class="service-option-card"
-                style="border: 2px dashed #c06014; background: rgba(230, 126, 34, 0.08);">
-                <div class="service-card-top">
-                  <span class="service-badge-pill" style="background: #c06014; color: #ffffff; font-weight: 700;">🧪
-                    MODO DE TESTE (R$ 0,01)</span>
-                  <span class="service-icon">⚡</span>
+          <!-- Acordeão com os 4 Botões Flutuantes Interativos -->
+          <div class="categories-accordion-list">
+            
+            <!-- Categoria 1: Cílios -->
+            <div class="category-block expanded" data-cat="cilios">
+              <button type="button" class="category-float-btn" data-toggle-cat="cilios">
+                <div class="cat-btn-left">
+                  <span class="cat-icon-badge">👁️</span>
+                  <div class="cat-info">
+                    <div class="cat-title-row">
+                      <h4 class="cat-title">Cílios</h4>
+                    </div>
+                    <span class="cat-sub">Extensões, Manutenções & Lifting</span>
+                  </div>
                 </div>
-                <h4>Procedimento de Teste (PIX)</h4>
-                <p>Item temporário em destaque para validar a transferência PIX de 1 centavo e a Google Agenda.</p>
-                <div class="service-pricing-row">
-                  <div class="price-full">Total: <b>R$ 0,01</b></div>
-                  <div class="price-sinal-tag" style="background: #c06014;">Sinal: <b>R$ 0,01</b></div>
+                <div class="cat-btn-right">
+                  <span class="cat-count-pill">4 opções</span>
+                  <span class="cat-chevron">▲</span>
                 </div>
-              </div>
-            </label>
-            [FIM: PROCEDIMENTO DE TESTE NO TOPO] -->
+              </button>
 
-            <!-- Opção 1: Extensão de Cílios -->
-            <label class="service-option" data-service-id="cilios">
-              <input type="radio" name="bookingService" value="cilios" checked>
-              <div class="service-option-card">
-                <div class="service-card-top">
-                  <span class="service-badge-pill">MAIS PROCURADO</span>
-                  <span class="service-icon">✳</span>
-                </div>
-                <h4>Extensão de Cílios</h4>
-                <p>Fio a Fio, Volume Brasileiro, Híbrido ou Russo de acordo com seu estilo.</p>
-                <div class="service-pricing-row">
-                  <div class="price-full">Total: <b>R$ 160,00</b></div>
-                  <div class="price-sinal-tag">Sinal (30%): <b>R$ 48,00</b></div>
-                </div>
-              </div>
-            </label>
+              <div class="category-items-panel">
+                <div class="category-items-grid">
+                  <label class="service-item-card selected" data-service-id="cilios-tradicionais">
+                    <input type="radio" name="bookingService" value="cilios-tradicionais" checked>
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">✨</span>
+                          <span class="item-name">Cílios Tradicionais e Tendências</span>
+                        </div>
+                        <span class="item-badge">DESTAQUE</span>
+                      </div>
+                      <p class="item-desc">Técnicas clássicas e atuais personalizadas para o seu olhar.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 2h00</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 140,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 42,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
 
-            <!-- Opção 2: Design de Sobrancelhas -->
-            <label class="service-option" data-service-id="sobrancelhas">
-              <input type="radio" name="bookingService" value="sobrancelhas">
-              <div class="service-option-card">
-                <div class="service-card-top">
-                  <span class="service-badge-pill">DEFINIÇÃO</span>
-                  <span class="service-icon">✧</span>
-                </div>
-                <h4>Design de Sobrancelhas</h4>
-                <p>Mapeamento facial personalizado, limpeza precisa e finalização natural.</p>
-                <div class="service-pricing-row">
-                  <div class="price-full">Total: <b>R$ 60,00</b></div>
-                  <div class="price-sinal-tag">Sinal (30%): <b>R$ 18,00</b></div>
-                </div>
-              </div>
-            </label>
+                  <label class="service-item-card" data-service-id="cilios-express">
+                    <input type="radio" name="bookingService" value="cilios-express">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">⚡</span>
+                          <span class="item-name">Cílios Express</span>
+                        </div>
+                        <span class="item-badge">PRATICIDADE</span>
+                      </div>
+                      <p class="item-desc">Aplicação ágil mantendo o alinhamento e elegância.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 1h15</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 100,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 30,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
 
-            <!-- Opção 3: Manutenção -->
-            <label class="service-option" data-service-id="manutencao">
-              <input type="radio" name="bookingService" value="manutencao">
-              <div class="service-option-card">
-                <div class="service-card-top">
-                  <span class="service-badge-pill">CUIDADO</span>
-                  <span class="service-icon">✺</span>
-                </div>
-                <h4>Manutenção de Cílios</h4>
-                <p>Reposição e alinhamento dos fios para manter seu olhar impecável (até 21 dias).</p>
-                <div class="service-pricing-row">
-                  <div class="price-full">Total: <b>R$ 100,00</b></div>
-                  <div class="price-sinal-tag">Sinal (30%): <b>R$ 30,00</b></div>
-                </div>
-              </div>
-            </label>
+                  <label class="service-item-card" data-service-id="cilios-manutencao">
+                    <input type="radio" name="bookingService" value="cilios-manutencao">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">✺</span>
+                          <span class="item-name">Manutenção de Cílios</span>
+                        </div>
+                        <span class="item-badge">CUIDADO</span>
+                      </div>
+                      <p class="item-desc">Reposição e alinhamento dos fios para manter seu olhar impecável.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 1h30</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 90,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 27,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
 
-            <!-- Opção 4: Combo Completo -->
-            <label class="service-option" data-service-id="combo">
-              <input type="radio" name="bookingService" value="combo">
-              <div class="service-option-card">
-                <div class="service-card-top">
-                  <span class="service-badge-pill">COMPLETO</span>
-                  <span class="service-icon">✦</span>
-                </div>
-                <h4>Combo Cílios + Sobrancelhas</h4>
-                <p>Harmonização facial completa do olhar no mesmo atendimento.</p>
-                <div class="service-pricing-row">
-                  <div class="price-full">Total: <b>R$ 200,00</b></div>
-                  <div class="price-sinal-tag">Sinal (30%): <b>R$ 60,00</b></div>
+                  <label class="service-item-card" data-service-id="cilios-lash-lifting">
+                    <input type="radio" name="bookingService" value="cilios-lash-lifting">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">👁️</span>
+                          <span class="item-name">Lash Lifting</span>
+                        </div>
+                        <span class="item-badge">NATURAL</span>
+                      </div>
+                      <p class="item-desc">Curvatura e hidratação profunda dos seus cílios naturais.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 1h15</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 120,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 36,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
                 </div>
               </div>
-            </label>
+            </div>
+
+            <!-- Categoria 2: Sobrancelha -->
+            <div class="category-block" data-cat="sobrancelha">
+              <button type="button" class="category-float-btn" data-toggle-cat="sobrancelha">
+                <div class="cat-btn-left">
+                  <span class="cat-icon-badge">✨</span>
+                  <div class="cat-info">
+                    <div class="cat-title-row">
+                      <h4 class="cat-title">Sobrancelha</h4>
+                    </div>
+                    <span class="cat-sub">Design, Henna, Lamination & Micro</span>
+                  </div>
+                </div>
+                <div class="cat-btn-right">
+                  <span class="cat-count-pill">5 opções</span>
+                  <span class="cat-chevron">▼</span>
+                </div>
+              </button>
+
+              <div class="category-items-panel" style="display: none;">
+                <div class="category-items-grid">
+                  <label class="service-item-card" data-service-id="sobrancelha-design">
+                    <input type="radio" name="bookingService" value="sobrancelha-design">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">✂️</span>
+                          <span class="item-name">Design de Sobrancelha</span>
+                        </div>
+                        <span class="item-badge">ESSENCIAL</span>
+                      </div>
+                      <p class="item-desc">Mapeamento facial e limpeza precisa dos fios.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 40min</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 35,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 10,50</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label class="service-item-card" data-service-id="sobrancelha-henna">
+                    <input type="radio" name="bookingService" value="sobrancelha-henna">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">🎨</span>
+                          <span class="item-name">Design + Henna</span>
+                        </div>
+                        <span class="item-badge">DEFINIÇÃO</span>
+                      </div>
+                      <p class="item-desc">Design personalizado com aplicação de henna para preenchimento.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 50min</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 60,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 18,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label class="service-item-card" data-service-id="sobrancelha-reconstrucao">
+                    <input type="radio" name="bookingService" value="sobrancelha-reconstrucao">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">🌿</span>
+                          <span class="item-name">Reconstrução</span>
+                        </div>
+                        <span class="item-badge">TRATAMENTO</span>
+                      </div>
+                      <p class="item-desc">Tratamento intensivo para estímulo e recuperação dos fios.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 1h00</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 90,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 27,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label class="service-item-card" data-service-id="sobrancelha-brow-lamination">
+                    <input type="radio" name="bookingService" value="sobrancelha-brow-lamination">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">✦</span>
+                          <span class="item-name">Brow Lamination</span>
+                        </div>
+                        <span class="item-badge">TENDÊNCIA</span>
+                      </div>
+                      <p class="item-desc">Fios alinhados, encorpados e com efeito lifting moderno.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 1h15</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 120,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 36,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label class="service-item-card" data-service-id="sobrancelha-micropigmentacao">
+                    <input type="radio" name="bookingService" value="sobrancelha-micropigmentacao">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">💎</span>
+                          <span class="item-name">Micropigmentação de Sobrancelha</span>
+                        </div>
+                        <span class="item-badge">LONGA DURAÇÃO</span>
+                      </div>
+                      <p class="item-desc">Técnica de fios hiper-realistas com efeito duradouro.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 2h30</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 290,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 87,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Categoria 3: Lábios -->
+            <div class="category-block" data-cat="labios">
+              <button type="button" class="category-float-btn" data-toggle-cat="labios">
+                <div class="cat-btn-left">
+                  <span class="cat-icon-badge">💋</span>
+                  <div class="cat-info">
+                    <div class="cat-title-row">
+                      <h4 class="cat-title">Lábios</h4>
+                    </div>
+                    <span class="cat-sub">Spa Lips, Buço, Hidracolor & Micro</span>
+                  </div>
+                </div>
+                <div class="cat-btn-right">
+                  <span class="cat-count-pill">4 opções</span>
+                  <span class="cat-chevron">▼</span>
+                </div>
+              </button>
+
+              <div class="category-items-panel" style="display: none;">
+                <div class="category-items-grid">
+                  <label class="service-item-card" data-service-id="labios-spa-lips">
+                    <input type="radio" name="bookingService" value="labios-spa-lips">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">💋</span>
+                          <span class="item-name">Spa Lips</span>
+                        </div>
+                        <span class="item-badge">HIDRATAÇÃO</span>
+                      </div>
+                      <p class="item-desc">Esfoliação suave e hidratação profunda para lábios macios.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 30min</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 30,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 9,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label class="service-item-card" data-service-id="labios-buco">
+                    <input type="radio" name="bookingService" value="labios-buco">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">✨</span>
+                          <span class="item-name">Buço</span>
+                        </div>
+                        <span class="item-badge">DELICADEZA</span>
+                      </div>
+                      <p class="item-desc">Depilação suave e higiênica da região do buço.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 20min</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 20,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 6,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label class="service-item-card" data-service-id="labios-hidracolor">
+                    <input type="radio" name="bookingService" value="labios-hidracolor">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">💄</span>
+                          <span class="item-name">Hidracolor</span>
+                        </div>
+                        <span class="item-badge">BRILHO & COR</span>
+                      </div>
+                      <p class="item-desc">Revitalização labial com hidratação intensa e tom coradinho.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 1h00</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 90,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 27,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label class="service-item-card" data-service-id="labios-micropigmentacao">
+                    <input type="radio" name="bookingService" value="labios-micropigmentacao">
+                    <div class="item-card-inner">
+                      <div class="item-card-header">
+                        <div class="item-name-wrap">
+                          <span class="item-symbol">👑</span>
+                          <span class="item-name">Micropigmentação Labial</span>
+                        </div>
+                        <span class="item-badge">REVITALIZAÇÃO</span>
+                      </div>
+                      <p class="item-desc">Definição do contorno labial e cor saudável duradoura.</p>
+                      <div class="item-footer">
+                        <span class="item-duration">⏱ 2h30</span>
+                        <div class="item-pricing">
+                          <span class="item-total">Total: <b>R$ 290,00</b></span>
+                          <span class="item-sinal">Sinal (30%): <b>R$ 87,00</b></span>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Categoria 4: Combo Cílios + Sobrancelhas (Botão Direto) -->
+            <div class="category-block combo-block" data-cat="combo">
+              <button type="button" class="category-float-btn" data-select-direct="combo-cilios-sobrancelhas">
+                <input type="radio" name="bookingService" value="combo-cilios-sobrancelhas" style="position: absolute; opacity: 0; pointer-events: none;">
+                <div class="cat-btn-left">
+                  <span class="cat-icon-badge">⭐</span>
+                  <div class="cat-info">
+                    <div class="cat-title-row">
+                      <h4 class="cat-title">Combo Cílios + Sobrancelhas</h4>
+                      <span class="combo-pill">SELEÇÃO DIRETA</span>
+                    </div>
+                    <span class="cat-sub">Harmonização completa do olhar · Procedimento direto</span>
+                  </div>
+                </div>
+                <div class="cat-btn-right">
+                  <div class="combo-direct-price">
+                    <span class="combo-price-val">R$ 180,00</span>
+                    <span class="combo-sinal-tag">Sinal: R$ 54,00</span>
+                  </div>
+                </div>
+              </button>
+            </div>
+
           </div>
 
           <div class="booking-footer">
             <div class="footer-summary">
               <span>Selecionado:</span>
-              <strong id="summaryServiceName">Extensão de Cílios</strong>
+              <strong id="summaryServiceName">Cílios Tradicionais e Tendências</strong>
             </div>
             <button type="button" class="btn-step btn-next" data-go-step="2">
               Escolher Data e Horário <span>→</span>

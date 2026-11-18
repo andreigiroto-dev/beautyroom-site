@@ -127,44 +127,113 @@ if (lightbox) {
   const modal = document.getElementById("bookingModal");
   if (!modal) return;
 
-  // Catálogo de procedimentos com valores, duração e cálculo de sinal de 30%
+  // Catálogo completo de procedimentos com valores, duração e cálculo de sinal de 30%
   const SERVICES = {
-    cilios: {
-      name: "Extensão de Cílios",
-      price: 160.00,
-      sinal: 48.00,
-      duration: "2h00",
-      durationHours: 2
+    // Cílios
+    'cilios-tradicionais': {
+      name: 'Cílios Tradicionais e Tendências',
+      price: 140.00,
+      sinal: 42.00,
+      duration: '2h00',
+      durationHours: 2.0
     },
-    sobrancelhas: {
-      name: "Design de Sobrancelhas",
-      price: 60.00,
-      sinal: 18.00,
-      duration: "45min",
-      durationHours: 0.75
-    },
-    manutencao: {
-      name: "Manutenção de Cílios",
+    'cilios-express': {
+      name: 'Cílios Express',
       price: 100.00,
       sinal: 30.00,
-      duration: "1h30",
+      duration: '1h15',
+      durationHours: 1.25
+    },
+    'cilios-manutencao': {
+      name: 'Manutenção de Cílios',
+      price: 90.00,
+      sinal: 27.00,
+      duration: '1h30',
       durationHours: 1.5
     },
-    combo: {
-      name: "Combo Cílios + Sobrancelhas",
-      price: 200.00,
-      sinal: 60.00,
-      duration: "2h30",
+    'cilios-lash-lifting': {
+      name: 'Lash Lifting',
+      price: 120.00,
+      sinal: 36.00,
+      duration: '1h15',
+      durationHours: 1.25
+    },
+
+    // Sobrancelha
+    'sobrancelha-design': {
+      name: 'Design de Sobrancelha',
+      price: 35.00,
+      sinal: 10.50,
+      duration: '40min',
+      durationHours: 0.7
+    },
+    'sobrancelha-henna': {
+      name: 'Design + Henna',
+      price: 60.00,
+      sinal: 18.00,
+      duration: '50min',
+      durationHours: 0.85
+    },
+    'sobrancelha-reconstrucao': {
+      name: 'Reconstrução de Sobrancelha',
+      price: 90.00,
+      sinal: 27.00,
+      duration: '1h00',
+      durationHours: 1.0
+    },
+    'sobrancelha-brow-lamination': {
+      name: 'Brow Lamination',
+      price: 120.00,
+      sinal: 36.00,
+      duration: '1h15',
+      durationHours: 1.25
+    },
+    'sobrancelha-micropigmentacao': {
+      name: 'Micropigmentação de Sobrancelha',
+      price: 290.00,
+      sinal: 87.00,
+      duration: '2h30',
       durationHours: 2.5
-    }/*,
-    // [ITEM DE TESTE R$ 0,01 - COMENTADO/DESATIVADO]
-    teste: {
-      name: "Procedimento de Teste (R$ 0,01)",
-      price: 0.01,
-      sinal: 0.01,
-      duration: "15min",
-      durationHours: 0.25
-    }*/
+    },
+
+    // Lábios
+    'labios-spa-lips': {
+      name: 'Spa Lips',
+      price: 30.00,
+      sinal: 9.00,
+      duration: '30min',
+      durationHours: 0.5
+    },
+    'labios-buco': {
+      name: 'Buço',
+      price: 20.00,
+      sinal: 6.00,
+      duration: '20min',
+      durationHours: 0.35
+    },
+    'labios-hidracolor': {
+      name: 'Hidracolor',
+      price: 90.00,
+      sinal: 27.00,
+      duration: '1h00',
+      durationHours: 1.0
+    },
+    'labios-micropigmentacao': {
+      name: 'Micropigmentação Labial',
+      price: 290.00,
+      sinal: 87.00,
+      duration: '2h30',
+      durationHours: 2.5
+    },
+
+    // Combo
+    'combo-cilios-sobrancelhas': {
+      name: 'Combo Cílios + Sobrancelhas',
+      price: 180.00,
+      sinal: 54.00,
+      duration: '2h30',
+      durationHours: 2.5
+    }
   };
 
   // URL do Webhook do Google Apps Script (Sincronização com Google Agenda da Dona)
@@ -395,17 +464,72 @@ if (lightbox) {
     });
   });
 
-  // 3. Etapa 1: Seleção de Procedimento
+  // 3. Etapa 1: Seleção de Procedimento e Acordeão Interativo
   function updateServiceSummary() {
-    const current = SERVICES[state.serviceId] || SERVICES.cilios;
+    const current = SERVICES[state.serviceId] || SERVICES['cilios-tradicionais'];
     if (summaryServiceName) {
       summaryServiceName.textContent = `${current.name} (R$ ${current.price.toFixed(2).replace(".", ",")})`;
     }
   }
 
-  serviceInputs.forEach((input) => {
-    input.addEventListener("change", (e) => {
-      state.serviceId = e.target.value;
+  // Interação do Acordeão (Alternar Categorias)
+  modal.querySelectorAll("[data-toggle-cat]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const catId = btn.getAttribute("data-toggle-cat");
+      const block = modal.querySelector(`.category-block[data-cat="${catId}"]`);
+      if (!block) return;
+
+      const isExpanded = block.classList.contains("expanded");
+      const panel = block.querySelector(".category-items-panel");
+      const chevron = block.querySelector(".cat-chevron");
+
+      if (isExpanded) {
+        block.classList.remove("expanded");
+        if (panel) panel.style.display = "none";
+        if (chevron) chevron.textContent = "▼";
+      } else {
+        block.classList.add("expanded");
+        if (panel) panel.style.display = "block";
+        if (chevron) chevron.textContent = "▲";
+      }
+    });
+  });
+
+  // Botão de Seleção Direta (Combo)
+  modal.querySelectorAll("[data-select-direct]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const serviceId = btn.getAttribute("data-select-direct");
+      state.serviceId = serviceId;
+      const radio = btn.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+
+      // Desmarca outras seleções
+      modal.querySelectorAll(".service-item-card").forEach(c => c.classList.remove("selected"));
+      modal.querySelectorAll(".category-block").forEach(b => b.classList.remove("has-selection"));
+      
+      const parentBlock = btn.closest(".category-block");
+      if (parentBlock) parentBlock.classList.add("has-selection");
+
+      updateServiceSummary();
+    });
+  });
+
+  // Seleção de Procedimentos Internos
+  modal.querySelectorAll(".service-item-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+        state.serviceId = radio.value;
+      }
+
+      modal.querySelectorAll(".service-item-card").forEach(c => c.classList.remove("selected"));
+      modal.querySelectorAll(".category-block").forEach(b => b.classList.remove("has-selection"));
+
+      card.classList.add("selected");
+      const parentBlock = card.closest(".category-block");
+      if (parentBlock) parentBlock.classList.add("has-selection");
+
       updateServiceSummary();
     });
   });
