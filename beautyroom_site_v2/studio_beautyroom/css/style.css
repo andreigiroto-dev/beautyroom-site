@@ -958,17 +958,44 @@ h1 em,h2 em { color: var(--brown); font-weight: 400; }
   }
   .category-float-btn {
     padding: 14px 16px;
+    gap: 10px;
+  }
+  .cat-btn-left {
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
   }
   .cat-icon-badge {
-    width: 36px;
-    height: 36px;
-    font-size: 17px;
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
   }
   .cat-title {
     font-size: 13.5px;
   }
   .cat-count-pill {
     display: none;
+  }
+  .combo-pill {
+    display: inline-block;
+    font-size: 7px;
+    padding: 2px 6px;
+  }
+  .cat-title-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .combo-direct-price {
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .combo-price-val {
+    font-size: 14.5px;
+  }
+  .combo-sinal-tag {
+    font-size: 8.5px;
+    padding: 2px 5px;
+    white-space: nowrap;
   }
 }
 

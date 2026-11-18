@@ -499,9 +499,6 @@
                       <div class="cat-info">
                         <div class="cat-title-row">
                           <h4 class="cat-title">{cat.title}</h4>
-                          {#if isCombo}
-                            <span class="combo-pill">SELEÇÃO DIRETA</span>
-                          {/if}
                         </div>
                         <span class="cat-sub">{cat.subtitle}</span>
                       </div>
@@ -510,6 +507,7 @@
                     <div class="cat-btn-right">
                       {#if isCombo}
                         <div class="combo-direct-price">
+                          <span class="combo-pill">SELEÇÃO DIRETA</span>
                           <span class="combo-price-val">R$ 180</span>
                           <span class="combo-sinal-tag">Sinal R$ 54</span>
                         </div>
@@ -1237,7 +1235,13 @@
       grid-template-columns: 1fr;
     }
     .category-float-btn {
-      padding: 15px 16px;
+      padding: 14px 16px;
+      gap: 10px;
+    }
+    .cat-btn-left {
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
     }
     .cat-icon-badge {
       width: 38px;
@@ -1245,10 +1249,31 @@
       font-size: 18px;
     }
     .cat-title {
-      font-size: 14px;
+      font-size: 13.5px;
     }
     .cat-count-pill {
       display: none;
+    }
+    .combo-pill {
+      display: inline-block;
+      font-size: 7px;
+      padding: 2px 6px;
+    }
+    .cat-title-row {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .combo-direct-price {
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .combo-price-val {
+      font-size: 14.5px;
+    }
+    .combo-sinal-tag {
+      font-size: 8.5px;
+      padding: 2px 5px;
+      white-space: nowrap;
     }
   }
 

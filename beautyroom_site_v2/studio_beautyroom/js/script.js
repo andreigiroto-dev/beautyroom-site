@@ -134,29 +134,29 @@ if (lightbox) {
       name: 'Cílios Tradicionais e Tendências',
       price: 140.00,
       sinal: 42.00,
-      duration: '2h00',
+      duration: '2h',
       durationHours: 2.0
     },
     'cilios-express': {
       name: 'Cílios Express',
       price: 100.00,
       sinal: 30.00,
-      duration: '1h15',
-      durationHours: 1.25
+      duration: '1h',
+      durationHours: 1.0
     },
     'cilios-manutencao': {
       name: 'Manutenção de Cílios',
       price: 90.00,
       sinal: 27.00,
-      duration: '1h30',
-      durationHours: 1.5
+      duration: '1h',
+      durationHours: 1.0
     },
     'cilios-lash-lifting': {
       name: 'Lash Lifting',
       price: 120.00,
       sinal: 36.00,
-      duration: '1h15',
-      durationHours: 1.25
+      duration: '1h30',
+      durationHours: 1.5
     },
 
     // Sobrancelha
@@ -164,36 +164,36 @@ if (lightbox) {
       name: 'Design de Sobrancelha',
       price: 35.00,
       sinal: 10.50,
-      duration: '40min',
-      durationHours: 0.7
+      duration: '40m',
+      durationHours: 0.67
     },
     'sobrancelha-henna': {
       name: 'Design + Henna',
       price: 60.00,
       sinal: 18.00,
-      duration: '50min',
-      durationHours: 0.85
+      duration: '1h',
+      durationHours: 1.0
     },
     'sobrancelha-reconstrucao': {
       name: 'Reconstrução de Sobrancelha',
       price: 90.00,
       sinal: 27.00,
-      duration: '1h00',
+      duration: '1h',
       durationHours: 1.0
     },
     'sobrancelha-brow-lamination': {
       name: 'Brow Lamination',
       price: 120.00,
       sinal: 36.00,
-      duration: '1h15',
-      durationHours: 1.25
+      duration: '1h30',
+      durationHours: 1.5
     },
     'sobrancelha-micropigmentacao': {
       name: 'Micropigmentação de Sobrancelha',
       price: 290.00,
       sinal: 87.00,
-      duration: '2h30',
-      durationHours: 2.5
+      duration: '2h',
+      durationHours: 2.0
     },
 
     // Lábios
@@ -201,29 +201,29 @@ if (lightbox) {
       name: 'Spa Lips',
       price: 30.00,
       sinal: 9.00,
-      duration: '30min',
+      duration: '30m',
       durationHours: 0.5
     },
     'labios-buco': {
       name: 'Buço',
       price: 20.00,
       sinal: 6.00,
-      duration: '20min',
-      durationHours: 0.35
+      duration: '20m',
+      durationHours: 0.33
     },
     'labios-hidracolor': {
       name: 'Hidracolor',
       price: 90.00,
       sinal: 27.00,
-      duration: '1h00',
-      durationHours: 1.0
+      duration: '40m',
+      durationHours: 0.67
     },
     'labios-micropigmentacao': {
       name: 'Micropigmentação Labial',
       price: 290.00,
       sinal: 87.00,
-      duration: '2h30',
-      durationHours: 2.5
+      duration: '2h',
+      durationHours: 2.0
     },
 
     // Combo
@@ -231,8 +231,8 @@ if (lightbox) {
       name: 'Combo Cílios + Sobrancelhas',
       price: 180.00,
       sinal: 54.00,
-      duration: '2h30',
-      durationHours: 2.5
+      duration: '3h',
+      durationHours: 3.0
     }
   };
 
