@@ -361,19 +361,19 @@
   /* Ilustração Cílios Piscando (Flutuante / Opção 1) */
   .hero-lash-badge {
     position: absolute;
-    top: 51%;
-    right: -55px;
-    z-index: 10;
+    top: 50%;
+    right: 20px;
+    z-index: 25;
     display: inline-flex;
     align-items: center;
     gap: 12px;
     padding: 10px 18px 10px 14px;
-    background: rgba(255, 252, 248, 0.94);
+    background: rgba(255, 252, 248, 0.95);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(189, 150, 94, 0.42);
+    border: 1px solid rgba(189, 150, 94, 0.45);
     border-radius: 40px;
-    box-shadow: 0 12px 32px rgba(62, 42, 32, 0.12), 0 2px 8px rgba(189, 150, 94, 0.15);
+    box-shadow: 0 14px 35px rgba(62, 42, 32, 0.16), 0 2px 10px rgba(189, 150, 94, 0.2);
     animation: badgeLevitate 5s ease-in-out infinite;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     user-select: none;
@@ -392,7 +392,7 @@
   }
   @media (max-width: 1280px) {
     .hero-lash-badge {
-      right: -20px;
+      right: 15px;
       padding: 8px 14px;
     }
   }
