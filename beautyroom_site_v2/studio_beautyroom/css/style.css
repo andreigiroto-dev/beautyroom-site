@@ -808,15 +808,26 @@ h1 em,h2 em { color: var(--brown); font-weight: 400; }
   font-weight: 600;
 }
 
-/* Painel Expansível de Serviços */
+/* Painel Expansível de Serviços com Transição Fluida por Grid */
 .category-items-panel {
-  border-top: 1px solid rgba(189, 150, 94, 0.15);
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, padding 0.35s ease;
   background: linear-gradient(to bottom, rgba(248, 243, 236, 0.5) 0%, rgba(255, 252, 248, 0.8) 100%);
+  padding: 0 22px;
+  opacity: 0;
+  border-top: 1px solid transparent;
+}
+
+.category-block.expanded .category-items-panel {
+  grid-template-rows: 1fr;
   padding: 18px 22px;
-  transition: all 0.35s ease;
+  opacity: 1;
+  border-top-color: rgba(189, 150, 94, 0.18);
 }
 
 .category-items-grid {
+  overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;

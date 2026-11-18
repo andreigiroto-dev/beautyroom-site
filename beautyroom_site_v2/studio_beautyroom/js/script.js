@@ -472,7 +472,7 @@ if (lightbox) {
     }
   }
 
-  // Interação do Acordeão (Alternar Categorias)
+  // Interação do Acordeão (Alternar Categorias com Animação Fluida)
   modal.querySelectorAll("[data-toggle-cat]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const catId = btn.getAttribute("data-toggle-cat");
@@ -480,18 +480,16 @@ if (lightbox) {
       if (!block) return;
 
       const isExpanded = block.classList.contains("expanded");
-      const panel = block.querySelector(".category-items-panel");
-      const chevron = block.querySelector(".cat-chevron");
 
-      if (isExpanded) {
-        block.classList.remove("expanded");
-        if (panel) panel.style.display = "none";
-        if (chevron) chevron.textContent = "▼";
-      } else {
-        block.classList.add("expanded");
-        if (panel) panel.style.display = "block";
-        if (chevron) chevron.textContent = "▲";
-      }
+      // Fecha outros blocos abertos para um efeito sanfona limpo
+      modal.querySelectorAll(".category-block").forEach((otherBlock) => {
+        if (otherBlock !== block && otherBlock.classList.contains("expanded")) {
+          otherBlock.classList.remove("expanded");
+        }
+      });
+
+      // Alterna estado do bloco atual
+      block.classList.toggle("expanded", !isExpanded);
     });
   });
 
