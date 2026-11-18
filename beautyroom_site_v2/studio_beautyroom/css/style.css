@@ -185,11 +185,12 @@ a { color: inherit; text-decoration: none; }
 }
 
 .status-title {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   color: var(--espresso);
-  letter-spacing: 0.6px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .status-sub {
@@ -2051,6 +2052,16 @@ h1 em,h2 em { color: var(--brown); font-weight: 400; }
     align-self: flex-start;
     animation: none;
     box-shadow: 0 6px 18px rgba(62, 42, 32, 0.06);
+  }
+}
+
+@media (max-width: 680px) {
+  .hero-lash-badge {
+    display: inline-flex !important;
+    margin: 24px auto 0 !important;
+    align-self: center !important;
+    position: static !important;
+    transform: none !important;
   }
 }
 

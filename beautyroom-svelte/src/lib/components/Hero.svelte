@@ -405,23 +405,6 @@
     }
   }
 
-  @media (max-width: 600px) {
-    .hero-actions {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      width: 100%;
-    }
-    .hero-actions .text-link {
-      margin: 4px auto 0;
-      text-align: center;
-    }
-    .hero-lash-badge {
-      align-self: center;
-      margin: 22px auto 0;
-    }
-  }
-</style>
   .lash-visual-wrap {
     width: 58px;
     height: 34px;
@@ -511,6 +494,27 @@
     50% {
       opacity: 1;
       transform: scale(1.3);
+    }
+  }
+
+  @media (max-width: 680px) {
+    .hero-actions {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+    }
+    .hero-actions .text-link {
+      margin: 4px auto 0;
+      text-align: center;
+      display: inline-block;
+    }
+    .hero-lash-badge {
+      display: inline-flex !important;
+      margin: 24px auto 0 !important;
+      align-self: center !important;
+      position: static !important;
+      transform: none !important;
     }
   }
 </style>
