@@ -3,6 +3,42 @@
 </script>
 
 <section class="hero" id="inicio">
+  <!-- [CAMADA ARTÍSTICA ORGÂNICA EM GOTAS/PETALS DOURADAS - COMENTAR SE DESEJAR REMOVER] -->
+  <div class="hero-organic-layer" aria-hidden="true">
+    <svg class="organic-art-svg" viewBox="0 0 1000 700" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="goldPetal1Svelte" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#bd965e" stop-opacity="0.32" />
+          <stop offset="50%" stop-color="#d8bd91" stop-opacity="0.20" />
+          <stop offset="100%" stop-color="#fffaf4" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="goldPetal2Svelte" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#765237" stop-opacity="0.25" />
+          <stop offset="60%" stop-color="#bd965e" stop-opacity="0.14" />
+          <stop offset="100%" stop-color="#f8f3ec" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="goldPetal3Svelte" x1="100%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#d8bd91" stop-opacity="0.28" />
+          <stop offset="100%" stop-color="#fffaf4" stop-opacity="0.03" />
+        </linearGradient>
+      </defs>
+
+      <g class="petal-group-flow">
+        <path d="M-80,-60 C80,30 180,180 120,340 C70,480 -40,510 -90,440 C-140,370 -160,100 -80,-60 Z" fill="url(#goldPetal1Svelte)" />
+        <path d="M-20,-10 C90,80 230,190 280,320 C320,430 260,490 200,450 C140,410 70,260 -20,-10 Z" fill="url(#goldPetal2Svelte)" />
+        <path d="M40,110 C160,170 240,270 230,370 C220,450 170,470 140,420 C100,350 70,220 40,110 Z" fill="url(#goldPetal3Svelte)" />
+        <path d="M110,-40 C210,10 320,110 340,210 C360,280 310,310 270,280 C220,240 180,110 110,-40 Z" fill="url(#goldPetal1Svelte)" />
+        <path d="M220,50 C280,90 320,150 310,190 C300,220 270,220 260,190 C240,150 220,90 220,50 Z" fill="url(#goldPetal2Svelte)" />
+        <path d="M300,160 C360,190 390,240 370,270 C350,290 320,280 320,250 C320,220 310,180 300,160 Z" fill="url(#goldPetal3Svelte)" />
+        <circle cx="150" cy="460" r="14" fill="url(#goldPetal1Svelte)" />
+        <circle cx="210" cy="480" r="8" fill="url(#goldPetal2Svelte)" />
+        <circle cx="260" cy="430" r="10" fill="url(#goldPetal3Svelte)" />
+        <circle cx="340" cy="310" r="6" fill="url(#goldPetal1Svelte)" />
+      </g>
+    </svg>
+  </div>
+  <!-- [FIM: CAMADA ARTÍSTICA] -->
+
   <div class="hero-copy">
     <div class="eyebrow">
       <span></span> Mauá · São Paulo
@@ -106,8 +142,38 @@
 </section>
 
 <style>
-  .hero { min-height: 650px; display: grid; grid-template-columns: 48% 52%; padding: 50px 7.2% 65px; background: var(--cream); }
-  .hero-copy { align-self: center; padding: 35px 6% 35px 0; position: relative; }
+  .hero { min-height: 650px; display: grid; grid-template-columns: 48% 52%; padding: 50px 7.2% 65px; background: var(--cream); position: relative; overflow: hidden; }
+  
+  /* Camada Artística Orgânica Dourada */
+  .hero-organic-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .organic-art-svg {
+    width: 100%;
+    height: 100%;
+    opacity: 0.85;
+  }
+  .petal-group-flow {
+    animation: organicDrift 14s ease-in-out infinite alternate;
+    transform-origin: 10% 20%;
+  }
+  @keyframes organicDrift {
+    0% {
+      transform: scale(1) rotate(0deg) translate(0, 0);
+    }
+    50% {
+      transform: scale(1.03) rotate(1deg) translate(8px, -5px);
+    }
+    100% {
+      transform: scale(0.98) rotate(-1deg) translate(-4px, 6px);
+    }
+  }
+
+  .hero-copy { align-self: center; padding: 35px 6% 35px 0; position: relative; z-index: 2; }
   .hero h1 { margin: 25px 0 20px; font: 500 clamp(48px,5.5vw,78px)/.99 "Playfair Display",serif; letter-spacing: -2px; color: var(--espresso); }
   .hero-text { max-width: 410px; color: var(--muted); font-size: 13px; line-height: 2; }
   .hero-actions { display: flex; align-items: center; gap: 27px; flex-wrap: wrap; margin-top: 32px; }
