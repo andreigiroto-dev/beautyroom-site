@@ -158,8 +158,11 @@ a { color: inherit; text-decoration: none; }
 .status-pill-text {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  line-height: 1.15;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2px;
+  line-height: 1.1;
 }
 
 .status-title {
@@ -169,13 +172,26 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.8px;
   text-transform: uppercase;
   white-space: nowrap;
+  display: block;
+  text-align: center;
 }
 
 .status-sub {
-  font-size: 8.5px;
+  font-size: 8px;
   color: var(--brown);
   letter-spacing: 0.3px;
   font-weight: 500;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-align: center;
+}
+
+.status-pin {
+  font-size: 8.5px;
+  line-height: 1;
 }
 
 /* Tipografia Comum */

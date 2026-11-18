@@ -498,6 +498,23 @@
   }
 
   @media (max-width: 680px) {
+    .hero {
+      text-align: center;
+    }
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .hero h1 {
+      text-align: center;
+    }
+    .hero-text {
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
     .hero-actions {
       flex-direction: column;
       align-items: center;
@@ -515,6 +532,13 @@
       align-self: center !important;
       position: static !important;
       transform: none !important;
+      left: auto !important;
+      right: auto !important;
+    }
+    .hero-note {
+      justify-content: center;
+      text-align: center;
+      margin: 30px auto 0;
     }
   }
 </style>
