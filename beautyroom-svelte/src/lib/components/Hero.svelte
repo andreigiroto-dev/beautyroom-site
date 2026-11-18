@@ -215,26 +215,50 @@
     100% { left: 160%; }
   }
 
-  /* Ilustração Cílios Piscando */
+  /* Ilustração Cílios Piscando (Flutuante / Opção 1) */
   .hero-lash-badge {
+    position: absolute;
+    top: 51%;
+    right: -55px;
+    z-index: 10;
     display: inline-flex;
     align-items: center;
-    gap: 16px;
-    margin-top: 28px;
-    padding: 12px 20px 12px 14px;
-    background: rgba(255, 250, 244, 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(189, 150, 94, 0.35);
+    gap: 14px;
+    padding: 10px 18px 10px 14px;
+    background: rgba(255, 252, 248, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(189, 150, 94, 0.42);
     border-radius: 40px;
-    box-shadow: 0 8px 24px rgba(62, 42, 32, 0.05);
-    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 12px 32px rgba(62, 42, 32, 0.12), 0 2px 8px rgba(189, 150, 94, 0.15);
+    animation: badgeLevitate 5s ease-in-out infinite;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
     user-select: none;
   }
   .hero-lash-badge:hover {
-    transform: translateY(-2px);
     border-color: #bd965e;
-    box-shadow: 0 12px 28px rgba(189, 150, 94, 0.18);
+    box-shadow: 0 16px 38px rgba(189, 150, 94, 0.28);
+  }
+  @keyframes badgeLevitate {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+  @media (max-width: 1200px) {
+    .hero-lash-badge {
+      right: -25px;
+    }
+  }
+  @media (max-width: 991px) {
+    .hero-lash-badge {
+      position: static;
+      margin-top: 24px;
+      align-self: flex-start;
+      animation: none;
+    }
   }
   .lash-visual-wrap {
     width: 58px;
