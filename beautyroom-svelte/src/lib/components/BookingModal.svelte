@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { fade, fly, scale } from 'svelte/transition';
+  import { fade, fly, scale, slide } from 'svelte/transition';
+  import { cubicOut } from 'svelte/easing';
   import {
     Calendar,
     Clock,
@@ -527,9 +528,9 @@
                     </div>
                   </button>
 
-                  <!-- Painel Expansível dos Procedimentos -->
+                  <!-- Painel Expansível dos Procedimentos com transição suave -->
                   {#if isExpanded && cat.isExpandable}
-                    <div class="category-items-panel" in:fly={{ y: -8, duration: 220 }}>
+                    <div class="category-items-panel" transition:slide={{ duration: 320, easing: cubicOut }}>
                       <div class="category-items-grid">
                         {#each cat.services as service}
                           {@const isSelected = selectedServiceId === service.id}
@@ -905,31 +906,38 @@
   .step-intro h3 { font: 500 18px "Playfair Display", serif; color: var(--espresso); margin: 0 0 4px; }
   .step-intro p { color: var(--muted); font-size: 11px; margin: 0; }
 
-  /* Acordeão de Categorias e Botões Flutuantes Interativos */
+  /* Acordeão de Categorias e Botões Flutuantes Interativos (Visual Fluido & Orgânico) */
   .categories-accordion-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     margin-bottom: 24px;
   }
 
   .category-block {
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 10px;
+    background: linear-gradient(145deg, #ffffff 0%, rgba(255, 252, 248, 0.95) 100%);
+    border: 1px solid rgba(189, 150, 94, 0.22);
+    border-radius: 14px;
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 14px rgba(62, 42, 32, 0.04);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 6px 20px rgba(62, 42, 32, 0.04), 0 1px 3px rgba(189, 150, 94, 0.08);
+  }
+
+  .category-block:hover {
+    border-color: rgba(189, 150, 94, 0.45);
+    box-shadow: 0 10px 28px rgba(62, 42, 32, 0.07), 0 2px 6px rgba(189, 150, 94, 0.12);
+    transform: translateY(-2px);
   }
 
   .category-block.has-selection {
     border-color: var(--gold);
-    box-shadow: 0 6px 20px rgba(189, 150, 94, 0.16);
+    box-shadow: 0 8px 28px rgba(189, 150, 94, 0.22), 0 2px 8px rgba(189, 150, 94, 0.15);
   }
 
   .category-block.expanded {
-    border-color: rgba(189, 150, 94, 0.5);
-    box-shadow: 0 8px 25px rgba(62, 42, 32, 0.08);
+    border-color: rgba(189, 150, 94, 0.55);
+    box-shadow: 0 12px 36px rgba(62, 42, 32, 0.09), 0 3px 10px rgba(189, 150, 94, 0.14);
+    background: #ffffff;
   }
 
   .category-float-btn {
@@ -937,35 +945,41 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
+    padding: 18px 22px;
     background: transparent;
     border: none;
     cursor: pointer;
     text-align: left;
-    transition: background 0.2s, transform 0.2s;
+    transition: background 0.3s ease;
   }
 
   .category-float-btn:hover {
-    background: rgba(248, 243, 236, 0.6);
+    background: rgba(248, 243, 236, 0.5);
   }
 
   .cat-btn-left {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 15px;
   }
 
   .cat-icon-badge {
-    width: 42px;
-    height: 42px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
-    background: radial-gradient(circle at center, #ffffff 0%, var(--ivory) 100%);
-    border: 1px solid var(--gold-light);
+    background: radial-gradient(circle at 30% 30%, #ffffff 0%, var(--ivory) 70%, var(--sand) 100%);
+    border: 1.5px solid var(--gold-light);
     display: grid;
     place-content: center;
-    font-size: 20px;
-    box-shadow: 0 4px 12px rgba(189, 150, 94, 0.15);
+    font-size: 21px;
+    box-shadow: 0 4px 14px rgba(189, 150, 94, 0.18), inset 0 1px 2px #fff;
     flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  }
+
+  .category-block:hover .cat-icon-badge {
+    transform: scale(1.06) rotate(3deg);
+    box-shadow: 0 6px 18px rgba(189, 150, 94, 0.28);
   }
 
   .cat-info {
@@ -981,9 +995,10 @@
   }
 
   .cat-title {
-    font: 600 15px "DM Sans", sans-serif;
+    font: 600 15.5px "DM Sans", sans-serif;
     color: var(--espresso);
     margin: 0;
+    letter-spacing: -0.2px;
   }
 
   .combo-pill {
@@ -992,12 +1007,13 @@
     font-weight: 700;
     color: #ffffff;
     background: linear-gradient(135deg, var(--gold) 0%, var(--brown) 100%);
-    padding: 3px 8px;
+    padding: 3px 9px;
     border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(189, 150, 94, 0.3);
   }
 
   .cat-sub {
-    font-size: 11px;
+    font-size: 11.5px;
     color: var(--muted);
   }
 
@@ -1010,28 +1026,39 @@
   .cat-toggle-action {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
 
   .cat-count-pill {
     font-size: 10px;
     color: var(--brown);
-    background: rgba(189, 150, 94, 0.12);
-    padding: 4px 10px;
+    background: rgba(189, 150, 94, 0.14);
+    padding: 5px 12px;
     border-radius: 20px;
     font-weight: 600;
+    letter-spacing: 0.3px;
   }
 
   .cat-chevron {
     color: var(--gold);
     display: flex;
     align-items: center;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Combo Direto Especial */
+  .category-block.expanded .cat-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Combo Direto Especial com Gradiente Glow Suave */
   .combo-block {
-    background: linear-gradient(to right, #ffffff, rgba(255, 250, 244, 0.9));
+    background: linear-gradient(135deg, #ffffff 0%, rgba(255, 250, 244, 0.95) 50%, rgba(248, 243, 236, 0.9) 100%);
     border: 1.5px dashed var(--gold);
+  }
+
+  .combo-block:hover {
+    border-color: var(--espresso);
+    box-shadow: 0 10px 30px rgba(189, 150, 94, 0.22);
   }
 
   .category-float-btn.selected-combo {
@@ -1046,7 +1073,7 @@
   }
 
   .combo-price-val {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--espresso);
   }
@@ -1056,16 +1083,16 @@
     color: var(--brown);
     background: var(--ivory);
     border: 1px solid var(--gold-light);
-    padding: 2px 6px;
+    padding: 2px 7px;
     border-radius: 4px;
     font-weight: 600;
   }
 
-  /* Painel Expansível de Serviços */
+  /* Painel Expansível de Serviços (Fluido com Fundo Suave) */
   .category-items-panel {
-    border-top: 1px solid var(--line);
-    background: var(--cream);
-    padding: 16px 20px;
+    border-top: 1px solid rgba(189, 150, 94, 0.15);
+    background: linear-gradient(to bottom, rgba(248, 243, 236, 0.5) 0%, rgba(255, 252, 248, 0.8) 100%);
+    padding: 18px 22px;
   }
 
   .category-items-grid {
@@ -1087,20 +1114,27 @@
 
   .item-card-inner {
     background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 14px;
+    border: 1px solid rgba(62, 42, 32, 0.1);
+    border-radius: 10px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 110px;
-    transition: all 0.25s ease;
+    min-height: 115px;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(62, 42, 32, 0.03);
+  }
+
+  .service-item-card:hover .item-card-inner {
+    border-color: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(62, 42, 32, 0.06);
   }
 
   .service-item-card.selected .item-card-inner {
     border-color: var(--gold);
-    box-shadow: 0 4px 16px rgba(189, 150, 94, 0.24);
-    background: #fffdf9;
+    box-shadow: 0 6px 20px rgba(189, 150, 94, 0.25);
+    background: #fffdfa;
   }
 
   .item-card-header {
@@ -1142,7 +1176,7 @@
   .item-desc {
     font-size: 10px;
     color: var(--muted);
-    line-height: 1.4;
+    line-height: 1.45;
     margin: 0 0 10px;
   }
 
@@ -1150,7 +1184,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    border-top: 1px dashed var(--line);
+    border-top: 1px dashed rgba(62, 42, 32, 0.12);
     padding-top: 8px;
   }
 
@@ -1203,15 +1237,15 @@
       grid-template-columns: 1fr;
     }
     .category-float-btn {
-      padding: 14px 16px;
+      padding: 15px 16px;
     }
     .cat-icon-badge {
-      width: 36px;
-      height: 36px;
-      font-size: 17px;
+      width: 38px;
+      height: 38px;
+      font-size: 18px;
     }
     .cat-title {
-      font-size: 13.5px;
+      font-size: 14px;
     }
     .cat-count-pill {
       display: none;
