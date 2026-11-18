@@ -14,9 +14,21 @@
     </p>
 
     <div class="hero-actions">
+      <!-- [NOVO BOTÃO EM DESTAQUE - GLOW DOURADO EDITORIAL] -->
+      <button type="button" class="hero-cta-glow" onclick={() => onOpenBooking('cilios')}>
+        <span class="cta-glow-shine"></span>
+        <div class="cta-glow-content">
+          <span class="cta-glow-main">✨ Reservar Meu Horário <span class="cta-arrow">↗</span></span>
+          <span class="cta-glow-sub">Vagas exclusivas · Sinal de 30%</span>
+        </div>
+      </button>
+      <!-- [FIM NOVO BOTÃO] -->
+
+      <!-- [BOTÃO ANTERIOR - DESCOMENTE SE PREFERIR VOLTAR AO MODELO CLÁSSICO]
       <button type="button" class="button button-dark" onclick={() => onOpenBooking('cilios')}>
         Agendar Horário <span>↗</span>
       </button>
+      -->
       <a href="#galeria" class="text-link">Ver trabalhos <span>↓</span></a>
     </div>
 
@@ -98,5 +110,73 @@
     .hero-copy { padding: 0 0 35px; }
     .hero-visual { padding: 0; min-height: 400px; }
     .hero-stamp { display: none; }
+  }
+
+  /* NOVO BOTÃO DESTAQUE HERO: GLOW DOURADO EDITORIAL */
+  .hero-cta-glow {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 16px 28px;
+    background: linear-gradient(135deg, #bd965e 0%, #9e7640 100%);
+    color: #ffffff !important;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(189, 150, 94, 0.35);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: left;
+  }
+  .hero-cta-glow:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 16px 36px rgba(189, 150, 94, 0.48);
+    background: linear-gradient(135deg, #caa36b 0%, #ad8249 100%);
+  }
+  .cta-glow-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    z-index: 2;
+  }
+  .cta-glow-main {
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+  }
+  .cta-glow-main .cta-arrow {
+    color: #fffaf4;
+    font-size: 14px;
+    transition: transform 0.3s ease;
+  }
+  .hero-cta-glow:hover .cta-arrow {
+    transform: translate(3px, -3px);
+  }
+  .cta-glow-sub {
+    font-size: 9.5px;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.5px;
+    font-weight: 400;
+  }
+  .cta-glow-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    animation: shimmerButton 4s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 1;
+  }
+  @keyframes shimmerButton {
+    0% { left: -100%; }
+    25% { left: 160%; }
+    100% { left: 160%; }
   }
 </style>

@@ -1190,3 +1190,256 @@ h1 em,h2 em { color: var(--brown); font-weight: 400; }
   .cal-slots-grid { justify-content: center; }
   .btn-whatsapp-action { font-size: 9.5px; padding: 12px 14px; text-align: center; }
 }
+
+/* ==========================================================================
+   ESTILOS DAS ABAS E CHECKOUT MERCADO PAGO / PIX
+   ========================================================================== */
+.payment-tabs-wrapper {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.payment-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 12px;
+  background: var(--bg-soft, #faf7f2);
+  border: 2px solid var(--line, #e2d7c5);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark, #2a241e);
+  transition: all 0.25s ease;
+}
+
+.payment-tab:hover {
+  border-color: var(--gold, #bd965e);
+  background: #ffffff;
+}
+
+.payment-tab.active {
+  border-color: var(--gold, #bd965e);
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(189, 150, 94, 0.16);
+  color: var(--gold, #bd965e);
+}
+
+.payment-tab .tab-icon {
+  font-size: 20px;
+}
+
+.payment-tab .tab-badge {
+  font-size: 10px;
+  color: #7a7065;
+  font-weight: 400;
+}
+
+.payment-tab.active .tab-badge {
+  color: var(--gold, #bd965e);
+  font-weight: 600;
+}
+
+.card-checkout-container {
+  background: #ffffff;
+  border: 1px solid var(--line, #e2d7c5);
+  border-radius: 14px;
+  padding: 22px;
+  margin-top: 15px;
+}
+
+.card-checkout-header {
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.secure-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2b7a4b;
+  background: rgba(43, 122, 75, 0.08);
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.card-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card-form-grid input,
+.card-form-grid select {
+  width: 100%;
+  height: 44px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1px solid var(--line, #e2d7c5);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-dark, #2a241e);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.card-form-grid input:focus,
+.card-form-grid select:focus {
+  outline: none;
+  border-color: var(--gold, #bd965e);
+  box-shadow: 0 0 0 3px rgba(189, 150, 94, 0.15);
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-pay-card {
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--gold, #bd965e);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.25s ease;
+  margin-top: 6px;
+}
+
+.btn-pay-card:hover {
+  background: #a47d47;
+}
+
+.btn-pay-card:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.payment-feedback-msg {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.payment-feedback-msg.success {
+  background: rgba(43, 122, 75, 0.1);
+  color: #2b7a4b;
+  border: 1px solid rgba(43, 122, 75, 0.2);
+}
+
+.payment-feedback-msg.error {
+  background: rgba(200, 35, 51, 0.08);
+  color: #c82333;
+  border: 1px solid rgba(200, 35, 51, 0.2);
+}
+
+.slot-btn.slot-occupied,
+.slot-btn:disabled {
+  background: #f1ede6 !important;
+  color: #a89f92 !important;
+  border-color: #e5ded4 !important;
+  cursor: not-allowed !important;
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   NOVO BOTÃO DESTAQUE HERO: GLOW DOURADO EDITORIAL (FÁCIL DE ATIVAR/DESATIVAR)
+   ========================================================================== */
+.hero-cta-glow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 16px 28px;
+  background: linear-gradient(135deg, #bd965e 0%, #9e7640 100%);
+  color: #ffffff !important;
+  border-radius: 8px;
+  text-decoration: none;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(189, 150, 94, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-cta-glow:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 16px 36px rgba(189, 150, 94, 0.48);
+  background: linear-gradient(135deg, #caa36b 0%, #ad8249 100%);
+}
+
+.hero-cta-glow:active {
+  transform: translateY(-1px);
+}
+
+.cta-glow-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  z-index: 2;
+}
+
+.cta-glow-main {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.cta-glow-main .cta-arrow {
+  color: #fffaf4;
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.hero-cta-glow:hover .cta-arrow {
+  transform: translate(3px, -3px);
+}
+
+.cta-glow-sub {
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.5px;
+  font-weight: 400;
+}
+
+/* Brilho Shimmer que passa a cada 4 segundos */
+.cta-glow-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  animation: shimmerButton 4s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes shimmerButton {
+  0% { left: -100%; }
+  25% { left: 160%; }
+  100% { left: 160%; }
+}
+
+
