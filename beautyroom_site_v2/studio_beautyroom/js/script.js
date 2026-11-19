@@ -565,8 +565,8 @@ if (lightbox) {
 
       const dayOfWeek = dayDate.getDay(); // 0 = Domingo, 1 = Segunda
       const isPast = dayDate < today;
-      // Estúdio funciona de Terça (2) a Sábado (6)
-      const isClosed = (dayOfWeek === 0 || dayOfWeek === 1);
+      // Aberto todos os dias (inclusive segundas e domingos para final de ano)
+      const isClosed = false;
 
       const btn = document.createElement("button");
       btn.type = "button";

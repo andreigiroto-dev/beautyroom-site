@@ -156,9 +156,7 @@
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     let candidate = new Date(today);
-    while (candidate.getDay() === 0 || candidate.getDay() === 1) {
-      candidate.setDate(candidate.getDate() + 1);
-    }
+    // Atendimento aberto todos os dias (segunda a domingo)
     selectedDate = candidate;
     fetchLiveGoogleSlots(candidate);
   }
@@ -464,7 +462,8 @@
     for (let day = 1; day <= daysInMonth; day++) {
       const d = new Date(year, month, day);
       const isPast = d < today;
-      const isClosed = d.getDay() === 0 || d.getDay() === 1;
+      // Aberto todos os dias (inclusive segundas e domingos)
+      const isClosed = false;
       const isSelected = !!selectedDate && d.toDateString() === selectedDate.toDateString();
       days.push({ day, date: d, isPast, isClosed, isSelected });
     }
