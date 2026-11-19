@@ -592,6 +592,57 @@ if (lightbox) {
     }
   }
 
+  // Cache em memória dos horários bloqueados da Google Agenda
+  let liveBusySlotsByDate = {};
+  let isFetchingLiveSlots = false;
+
+  // Busca em tempo real na Google Agenda os eventos manuais ou automáticos
+  function fetchGoogleCalendarSlots(isoDate) {
+    if (!isoDate || liveBusySlotsByDate[isoDate] || isFetchingLiveSlots) return;
+
+    isFetchingLiveSlots = true;
+    const fetchUrl = `${GOOGLE_CALENDAR_WEBHOOK_URL}?action=getBusySlots&date=${isoDate}`;
+
+    fetch(fetchUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        isFetchingLiveSlots = false;
+        if (data && data.status === "success" && Array.isArray(data.busySlots)) {
+          liveBusySlotsByDate[isoDate] = data.busySlots;
+          // Re-renderiza os botões com os horários atualizados da Google Agenda
+          if (state.selectedDate) {
+            const currentIso = `${state.selectedDate.getFullYear()}-${String(state.selectedDate.getMonth() + 1).padStart(2, "0")}-${String(state.selectedDate.getDate()).padStart(2, "0")}`;
+            if (currentIso === isoDate) {
+              renderTimeSlots();
+            }
+          }
+        }
+      })
+      .catch((err) => {
+        isFetchingLiveSlots = false;
+        console.warn("Consulta Google Calendar offline, usando cache local:", err);
+      });
+  }
+
+  // Verifica se um determinado horário (ex: "09:00") colide com algum evento da Google Agenda
+  function isSlotOverlappingGoogleEvents(hourStr, datePrefix) {
+    const events = liveBusySlotsByDate[datePrefix];
+    if (!events || !events.length) return false;
+
+    const parts = hourStr.split(":");
+    const slotStartMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    // Duração estimada do serviço selecionado
+    const service = SERVICES[state.serviceId] || SERVICES['cilios-tradicionais'];
+    const durationHours = service.durationHours || 2.0;
+    const slotEndMin = slotStartMin + durationHours * 60;
+
+    return events.some((ev) => {
+      if (ev.allDay) return true;
+      // Colisão de intervalos de tempo: (StartA < EndB) e (EndA > StartB)
+      return slotStartMin < ev.endMinutes && slotEndMin > ev.startMinutes;
+    });
+  }
+
   function selectDay(date) {
     state.selectedDate = date;
     state.selectedTime = null; // reseta horário ao trocar o dia
@@ -605,6 +656,7 @@ if (lightbox) {
     const dayName = WEEKDAYS_PT[date.getDay()];
     const dayStr = String(date.getDate()).padStart(2, "0");
     const monthStr = String(date.getMonth() + 1).padStart(2, "0");
+    const isoDate = `${date.getFullYear()}-${monthStr}-${dayStr}`;
 
     if (calSelectedDayText) {
       calSelectedDayText.textContent = `${dayName}, ${dayStr}/${monthStr}`;
@@ -612,6 +664,9 @@ if (lightbox) {
 
     renderTimeSlots();
     updateDateTimeSummary();
+
+    // Dispara busca na Google Agenda em tempo real
+    fetchGoogleCalendarSlots(isoDate);
   }
 
   // Gestão de Horários Ocupados / Bloqueados
@@ -649,12 +704,14 @@ if (lightbox) {
       btn.textContent = hour;
 
       const slotKey = `${datePrefix}_${hour}`;
-      const isBooked = bookedList.includes(slotKey);
+      const isLocalBooked = bookedList.includes(slotKey);
+      const isGoogleBusy = isSlotOverlappingGoogleEvents(hour, datePrefix);
+      const isBooked = isLocalBooked || isGoogleBusy;
 
       if (isBooked) {
         btn.disabled = true;
         btn.classList.add("slot-occupied");
-        btn.title = "Horário indisponível (já agendado)";
+        btn.title = "Horário indisponível (já agendado ou bloqueado na Google Agenda)";
         btn.textContent = `${hour} (Ocupado)`;
       } else {
         if (state.selectedTime === hour) {

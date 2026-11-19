@@ -83,6 +83,45 @@
   let isCopied = $state(false);
   let qrLoading = $state(true);
 
+  // Live Google Calendar busy slots
+  let liveBusySlots = $state<Array<{ startMinutes: number; endMinutes: number; allDay: boolean }>>([]);
+  let isFetchingLiveSlots = $state(false);
+
+  async function fetchLiveGoogleSlots(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const isoDate = `${year}-${month}-${day}`;
+
+    isFetchingLiveSlots = true;
+    try {
+      const res = await fetch(`${GOOGLE_CALENDAR_WEBHOOK_URL}?action=getBusySlots&date=${isoDate}`);
+      const data = await res.json();
+      if (data && data.status === 'success' && Array.isArray(data.busySlots)) {
+        liveBusySlots = data.busySlots;
+      } else {
+        liveBusySlots = [];
+      }
+    } catch (e) {
+      liveBusySlots = [];
+    } finally {
+      isFetchingLiveSlots = false;
+    }
+  }
+
+  function isSlotGoogleBusy(hour: string): boolean {
+    if (!liveBusySlots.length) return false;
+    const parts = hour.split(':');
+    const startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    const durationHours = currentService.durationHours || 2.0;
+    const endMin = startMin + durationHours * 60;
+
+    return liveBusySlots.some(ev => {
+      if (ev.allDay) return true;
+      return startMin < ev.endMinutes && endMin > ev.startMinutes;
+    });
+  }
+
   // Serviço selecionado reativo
   let currentService = $derived(SERVICES[selectedServiceId] || SERVICES['cilios-tradicionais']);
   let priceTotal = $derived(currentService.price);
@@ -121,6 +160,7 @@
       candidate.setDate(candidate.getDate() + 1);
     }
     selectedDate = candidate;
+    fetchLiveGoogleSlots(candidate);
   }
 
   function closeModal() {
@@ -615,7 +655,11 @@
                       type="button"
                       class="cal-day {d.isSelected ? 'selected' : ''}"
                       disabled={d.isPast || d.isClosed}
-                      onclick={() => { selectedDate = d.date; selectedTime = null; }}
+                      onclick={() => { 
+                        selectedDate = d.date; 
+                        selectedTime = null;
+                        fetchLiveGoogleSlots(d.date);
+                      }}
                     >
                       {d.day}
                     </button>
@@ -633,7 +677,7 @@
                     {@const datePrefix = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
                     {#each AVAILABLE_HOURS as hour}
                       {@const slotKey = `${datePrefix}_${hour}`}
-                      {@const isOccupied = bookedSlots.includes(slotKey)}
+                      {@const isOccupied = bookedSlots.includes(slotKey) || isSlotGoogleBusy(hour)}
                       <button
                         type="button"
                         class="slot-btn {selectedTime === hour ? 'active' : ''} {isOccupied ? 'slot-occupied' : ''}"
