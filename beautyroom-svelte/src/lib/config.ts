@@ -254,7 +254,7 @@ export const CATEGORIES: CategoryGroup[] = [
 ];
 
 export const GOOGLE_CALENDAR_WEBHOOK_URL =
-  'https://script.google.com/macros/s/AKfycbwvzsILWQaxncYqGtIQKDyWtdxh5ThprmYxQh0BDfZomXolglT1KeBO-PqTJZA9Cw0EHQ/exec';
+  'https://script.google.com/macros/s/AKfycbzEl4b2doailfWpT94-igvtxICHemzfefc0Zxr3p8pWw2xzGQ77RpvCrTDtgVrveFqmhg/exec';
 
 export const PIX_CONFIG = {
   key: '+5511984814153',

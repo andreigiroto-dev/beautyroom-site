@@ -237,7 +237,7 @@ if (lightbox) {
   };
 
   // URL do Webhook do Google Apps Script (Sincronização com Google Agenda da Dona)
-  const GOOGLE_CALENDAR_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwvzsILWQaxncYqGtIQKDyWtdxh5ThprmYxQh0BDfZomXolglT1KeBO-PqTJZA9Cw0EHQ/exec";
+  const GOOGLE_CALENDAR_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzEl4b2doailfWpT94-igvtxICHemzfefc0Zxr3p8pWw2xzGQ77RpvCrTDtgVrveFqmhg/exec";
 
   // Configurações do PIX Oficial do Estúdio (Padrão BACEN BR Code)
   const PIX_CONFIG = {
