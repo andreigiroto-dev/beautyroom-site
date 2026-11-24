@@ -451,6 +451,11 @@ if (lightbox) {
   // 2. Navegação entre Etapas (Stepper)
   function goToStep(stepNum) {
     // Validações antes de avançar
+    if (stepNum > 1 && (!state.serviceIds || state.serviceIds.length === 0)) {
+      alert("Por favor, selecione ao menos um procedimento para continuar.");
+      return;
+    }
+
     if (stepNum > 2 && (!state.selectedDate || !state.selectedTime)) {
       alert("Por favor, selecione uma data e um horário disponível no calendário.");
       return;
@@ -585,28 +590,29 @@ if (lightbox) {
   // Seleção de Procedimentos Internos (suporte a seleção de múltiplos serviços)
   modal.querySelectorAll(".service-item-card").forEach((card) => {
     card.addEventListener("click", (e) => {
-      // Se clicou direto no input, não reprocessa
-      if (e.target && e.target.tagName.toLowerCase() === "input") return;
+      // Como o card é um <label>, o navegador dispara 2 eventos (um no elemento clicado e outro no input).
+      // Prevenimos o comportamento padrão do label para controlar 100% via JS
+      e.preventDefault();
 
       const input = card.querySelector('input');
       const val = input ? input.value : card.getAttribute("data-service-id");
       if (!val) return;
 
-      if (!state.serviceIds) state.serviceIds = [];
+      if (!state.serviceIds) state.serviceIds = ["cilios-tradicionais"];
 
       if (state.serviceIds.includes(val)) {
-        if (state.serviceIds.length > 1) {
-          state.serviceIds = state.serviceIds.filter(id => id !== val);
-          card.classList.remove("selected");
-          if (input) input.checked = false;
-        }
+        // Se já está selecionado: se tiver mais de um, desmarca. Se for o único, desmarca também
+        state.serviceIds = state.serviceIds.filter(id => id !== val);
+        card.classList.remove("selected");
+        if (input) input.checked = false;
       } else {
+        // Se não estava selecionado, marca
         state.serviceIds.push(val);
         card.classList.add("selected");
         if (input) input.checked = true;
       }
 
-      state.serviceId = state.serviceIds[0];
+      state.serviceId = state.serviceIds[0] || "";
       state.selectedTime = null; // Revalida horários ao mudar procedimentos
 
       // Atualiza blocos de categoria com seleção

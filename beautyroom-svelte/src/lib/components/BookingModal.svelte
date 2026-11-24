@@ -42,14 +42,12 @@
 
   function toggleServiceSelection(serviceId: string) {
     if (selectedServiceIds.includes(serviceId)) {
-      // Se tiver mais de um selecionado, desmarca; se for o único, mantém para não ficar sem nenhum
-      if (selectedServiceIds.length > 1) {
-        selectedServiceIds = selectedServiceIds.filter((id) => id !== serviceId);
-      }
+      // Desmarca o item clicado
+      selectedServiceIds = selectedServiceIds.filter((id) => id !== serviceId);
     } else {
       selectedServiceIds = [...selectedServiceIds, serviceId];
     }
-    selectedServiceId = selectedServiceIds[0];
+    selectedServiceId = selectedServiceIds[0] || "";
     selectedTime = null; // Reseta horário para revalidar a nova duração somada
   }
 
@@ -829,6 +827,7 @@
               <button
                 type="button"
                 class="btn-step btn-next"
+                disabled={selectedServicesList.length === 0}
                 onclick={nextStep}
               >
                 Continuar para Data e Horário <ArrowRight size={14} />
