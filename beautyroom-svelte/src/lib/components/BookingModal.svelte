@@ -37,6 +37,30 @@
     selectedServiceId: string;
   }>();
 
+  // Lista de procedimentos selecionados (permite selecionar mais de um)
+  let selectedServiceIds = $state<string[]>([selectedServiceId]);
+
+  // Sincroniza caso o prop selectedServiceId mude externamente
+  $effect(() => {
+    if (selectedServiceId && !selectedServiceIds.includes(selectedServiceId)) {
+      selectedServiceIds = [selectedServiceId];
+    }
+  });
+
+  function toggleServiceSelection(serviceId: string) {
+    if (selectedServiceIds.includes(serviceId)) {
+      // Se tiver mais de um selecionado, remove; se for o único, mantém para não ficar vazio
+      if (selectedServiceIds.length > 1) {
+        selectedServiceIds = selectedServiceIds.filter((id) => id !== serviceId);
+      }
+    } else {
+      // Se selecionou um combo direto, limpa os demais ou adiciona
+      selectedServiceIds = [...selectedServiceIds, serviceId];
+    }
+    selectedServiceId = selectedServiceIds[0];
+    selectedTime = null; // Reseta horário para revalidar a nova duração somada
+  }
+
   // Categoria expandida na Etapa 1 (inicia fechada para mostrar todos os botões flutuantes)
   let expandedCategory = $state<
     "cilios" | "sobrancelha" | "labios" | "combo" | null
@@ -48,7 +72,7 @@
     directId?: string,
   ) {
     if (!isExpandable && directId) {
-      selectedServiceId = directId;
+      toggleServiceSelection(directId);
       expandedCategory = null;
       return;
     }
@@ -83,14 +107,25 @@
     "Dezembro",
   ];
   const WEEKDAYS_PT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-  const AVAILABLE_HOURS = [
-    "09:00",
-    "10:30",
-    "13:00",
-    "14:30",
-    "16:00",
-    "17:30",
-  ];
+
+  // Horários dinâmicos conforme o mês escolhido:
+  // Dezembro: das 08h00 às 20h00 (slots até 19h30 para acomodar procedimentos)
+  // Demais meses (Janeiro em diante): das 09h00 às 17h30
+  function getAvailableHoursForDate(date: Date | null): string[] {
+    const isDecember = date ? date.getMonth() === 11 : new Date().getMonth() === 11;
+    const startHour = isDecember ? 8 : 9;
+    const endHour = isDecember ? 20 : 17; // no padrão regular termina às 17:30
+    const endMinutesMax = isDecember ? 20 * 60 : 17 * 60 + 30;
+
+    const slots: string[] = [];
+    for (let m = startHour * 60; m <= endMinutesMax; m += 30) {
+      const h = Math.floor(m / 60);
+      const min = m % 60;
+      slots.push(`${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`);
+    }
+    return slots;
+  }
+
   let bookedSlots = $state<string[]>([]);
 
   // Estado do Cartão / Mercado Pago
@@ -144,26 +179,63 @@
     }
   }
 
+  // Verifica se o slot de horário colide com a Google Agenda ou passa do horário de fechamento
   function isSlotGoogleBusy(hour: string): boolean {
-    if (!liveBusySlots.length) return false;
     const parts = hour.split(":");
     const startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
-    const durationHours = currentService.durationHours || 2.0;
-    const endMin = startMin + durationHours * 60;
+    const endMin = startMin + totalDurationMinutes;
 
+    // Não permite agendar se a finalização passar do horário máximo de atendimento
+    const isDecember = selectedDate ? selectedDate.getMonth() === 11 : false;
+    const closeMin = isDecember ? 20 * 60 : 17 * 60 + 30; // 20h em dez, 17h30 padrão
+    if (endMin > closeMin) return true;
+
+    if (!liveBusySlots.length) return false;
+
+    // Colisão de intervalos de tempo: (startMin < ev.endMinutes && endMin > ev.startMinutes)
     return liveBusySlots.some((ev) => {
       if (ev.allDay) return true;
       return startMin < ev.endMinutes && endMin > ev.startMinutes;
     });
   }
 
-  // Serviço selecionado reativo
-  let currentService = $derived(
-    SERVICES[selectedServiceId] || SERVICES["cilios-tradicionais"],
+  // Serviços selecionados reativos (soma de valores e tempos)
+  let selectedServicesList = $derived(
+    selectedServiceIds
+      .map((id) => SERVICES[id])
+      .filter((s): s is Service => !!s),
   );
-  let priceTotal = $derived(currentService.price);
-  let priceSinal = $derived(currentService.sinal);
+
+  let currentService = $derived(
+    selectedServicesList[0] || SERVICES["cilios-tradicionais"],
+  );
+
+  let priceTotal = $derived(
+    selectedServicesList.reduce((acc, s) => acc + s.price, 0),
+  );
+  let priceSinal = $derived(
+    selectedServicesList.reduce((acc, s) => acc + s.sinal, 0),
+  );
   let priceBalance = $derived(priceTotal - priceSinal);
+
+  let totalDurationMinutes = $derived(
+    selectedServicesList.reduce(
+      (acc, s) => acc + (s.durationMinutes || (s.durationHours ? s.durationHours * 60 : 120)),
+      0,
+    ),
+  );
+
+  let totalDurationFormatted = $derived.by(() => {
+    const hours = Math.floor(totalDurationMinutes / 60);
+    const mins = totalDurationMinutes % 60;
+    if (hours > 0 && mins > 0) return `${hours}h${mins}m`;
+    if (hours > 0) return `${hours}h`;
+    return `${mins}m`;
+  });
+
+  let selectedServicesNames = $derived(
+    selectedServicesList.map((s) => s.name).join(" + "),
+  );
 
   onMount(() => {
     loadBookedSlots();
@@ -331,8 +403,8 @@
     const payload = {
       date: isoDate,
       time: selectedTime,
-      durationHours: currentService.durationHours,
-      serviceName: currentService.name,
+      durationHours: (totalDurationMinutes / 60).toFixed(2),
+      serviceName: selectedServicesNames,
       clientName,
       clientPhone,
       clientNotes,
@@ -453,7 +525,7 @@
   let bookingVoucherUrl = $derived.by(() => {
     const id = cardApprovedId || `BR-${Date.now().toString().slice(-6)}`;
     const params = new URLSearchParams({
-      servico: selectedServiceId,
+      servico: selectedServiceIds.join(","),
       cliente: clientName,
       data: formattedDateStr,
       hora: selectedTime || "",
@@ -466,7 +538,8 @@
     const text = [
       "Olá! Realizei o agendamento no site da Beauty Room:",
       "",
-      `• *Procedimento:* ${currentService.name}`,
+      `• *Procedimento(s):* ${selectedServicesNames}`,
+      `• *Duração Estimada:* ${totalDurationFormatted}`,
       `• *Data e Horário:* ${formattedDateStr} às ${selectedTime}`,
       `• *Cliente:* ${clientName}`,
       `• *WhatsApp:* ${clientPhone}`,
@@ -488,7 +561,8 @@
       "Olá, Thais! Acabei de pagar o sinal pelo cartão de crédito na Beauty Room.",
       "",
       `*Cliente:* ${clientName}`,
-      `*Procedimento:* ${currentService.name}`,
+      `*Procedimento(s):* ${selectedServicesNames}`,
+      `*Duração Estimada:* ${totalDurationFormatted}`,
       `*Data:* ${formattedDateStr} às ${selectedTime}`,
       `*Valor Total:* R$ ${priceTotal.toFixed(2).replace(".", ",")}`,
       `*Sinal Pago no Cartão:* R$ ${priceSinal.toFixed(2).replace(".", ",")} (ID: ${cardApprovedId || "MP"})`,
@@ -616,9 +690,9 @@
                 {@const isCombo = !cat.isExpandable}
                 {@const isExpanded = expandedCategory === cat.id}
                 {@const isSelectedDirect =
-                  isCombo && selectedServiceId === cat.directServiceId}
+                  isCombo && cat.directServiceId && selectedServiceIds.includes(cat.directServiceId)}
                 {@const hasSelectedChild = cat.services.some(
-                  (s) => s.id === selectedServiceId,
+                  (s) => selectedServiceIds.includes(s.id),
                 )}
 
                 <div
@@ -683,22 +757,25 @@
                     >
                       <div class="category-items-grid">
                         {#each cat.services as service}
-                          {@const isSelected = selectedServiceId === service.id}
+                          {@const isSelected = selectedServiceIds.includes(service.id)}
                           <label
                             class="service-item-card {isSelected
                               ? 'selected'
                               : ''}"
                           >
                             <input
-                              type="radio"
+                              type="checkbox"
                               name="bookingService"
                               value={service.id}
                               checked={isSelected}
-                              onchange={() => (selectedServiceId = service.id)}
+                              onchange={() => toggleServiceSelection(service.id)}
                             />
                             <div class="item-card-inner">
                               <div class="item-card-header">
                                 <div class="item-name-wrap">
+                                  <span class="item-checkbox {isSelected ? 'checked' : ''}">
+                                    {isSelected ? "✓" : ""}
+                                  </span>
                                   <span class="item-symbol"
                                     >{service.symbol || "✦"}</span
                                   >
@@ -747,12 +824,14 @@
 
             <div class="booking-footer">
               <div class="selected-summary-indicator">
-                <span class="indicator-label">Selecionado:</span>
-                <span class="indicator-name"
-                  ><b>{currentService.name}</b> (R$ {priceTotal
-                    .toFixed(2)
-                    .replace(".", ",")})</span
-                >
+                <span class="indicator-label">
+                  {selectedServicesList.length > 1 ? `${selectedServicesList.length} Procedimentos:` : "Selecionado:"}
+                </span>
+                <span class="indicator-name">
+                  <b>{selectedServicesNames}</b>
+                  <span class="indicator-duration-badge">⏱ {totalDurationFormatted}</span>
+                  (Total R$ {priceTotal.toFixed(2).replace(".", ",")})
+                </span>
               </div>
               <button
                 type="button"
@@ -836,11 +915,18 @@
                   {selectedDate
                     ? `${WEEKDAYS_PT[selectedDate.getDay()]}, ${String(selectedDate.getDate()).padStart(2, "0")}/${String(selectedDate.getMonth() + 1).padStart(2, "0")}`
                     : "Selecione uma data"}
+                  {#if selectedDate}
+                    <small class="slots-duration-hint">
+                      · Duração total: <b>{totalDurationFormatted}</b>
+                      {selectedDate.getMonth() === 11 ? " (Especial Dezembro: 08h às 20h)" : " (09h às 17h30)"}
+                    </small>
+                  {/if}
                 </h4>
                 <div class="slots-grid">
                   {#if selectedDate}
                     {@const datePrefix = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`}
-                    {#each AVAILABLE_HOURS as hour}
+                    {@const dailyHours = getAvailableHoursForDate(selectedDate)}
+                    {#each dailyHours as hour}
                       {@const slotKey = `${datePrefix}_${hour}`}
                       {@const isOccupied =
                         bookedSlots.includes(slotKey) || isSlotGoogleBusy(hour)}
@@ -850,6 +936,7 @@
                           ? 'active'
                           : ''} {isOccupied ? 'slot-occupied' : ''}"
                         disabled={isOccupied}
+                        title={isOccupied ? "Horário indisponível para o tempo total dos procedimentos" : `Disponível para ${totalDurationFormatted}`}
                         onclick={() => (selectedTime = hour)}
                       >
                         {hour}
@@ -1689,6 +1776,45 @@
     display: flex;
     align-items: center;
     gap: 6px;
+  }
+
+  .item-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--gold);
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    background: transparent;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .item-checkbox.checked {
+    background: var(--gold);
+  }
+
+  .slots-duration-hint {
+    display: block;
+    font-size: 11px;
+    font-weight: normal;
+    color: var(--brown);
+    margin-top: 4px;
+  }
+
+  .indicator-duration-badge {
+    background: rgba(189, 150, 94, 0.15);
+    color: var(--espresso);
+    padding: 2px 7px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin: 0 4px;
+    display: inline-block;
   }
 
   .item-symbol {

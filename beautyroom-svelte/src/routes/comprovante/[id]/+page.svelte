@@ -14,15 +14,33 @@
 
   // Obtém os parâmetros da URL
   let bookingId = $derived(page.params.id);
-  let serviceId = $derived(page.url.searchParams.get('servico') || 'cilios');
+  let serviceParam = $derived(page.url.searchParams.get('servico') || 'cilios-tradicionais');
   let clientName = $derived(page.url.searchParams.get('cliente') || 'Cliente');
   let dateParam = $derived(page.url.searchParams.get('data') || 'Data a confirmar');
   let timeParam = $derived(page.url.searchParams.get('hora') || '14:00');
   let payMethod = $derived(page.url.searchParams.get('pagamento') || 'PIX');
 
-  let service = $derived(SERVICES[serviceId] || SERVICES.cilios);
-  let sinalPaid = $derived(service.sinal);
-  let balanceToPay = $derived(service.price - sinalPaid);
+  // Suporte a múltiplos procedimentos separados por vírgula
+  let servicesList = $derived(
+    serviceParam.split(',').map((id) => SERVICES[id.trim()]).filter(Boolean)
+  );
+  let mainService = $derived(servicesList[0] || SERVICES['cilios-tradicionais']);
+  let serviceNames = $derived(servicesList.map((s) => s.name).join(' + '));
+  let priceTotal = $derived(servicesList.reduce((acc, s) => acc + s.price, 0));
+  let sinalPaid = $derived(servicesList.reduce((acc, s) => acc + s.sinal, 0));
+  let balanceToPay = $derived(priceTotal - sinalPaid);
+
+  let totalDurationFormatted = $derived.by(() => {
+    const totalMin = servicesList.reduce(
+      (acc, s) => acc + (s.durationMinutes || (s.durationHours ? s.durationHours * 60 : 120)),
+      0
+    );
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    if (h > 0 && m > 0) return `${h}h${m}m`;
+    if (h > 0) return `${h}h`;
+    return `${m}m`;
+  });
 
   let isCopied = $state(false);
 
@@ -30,7 +48,7 @@
     if (navigator.share) {
       navigator.share({
         title: 'Comprovante de Agendamento · Beauty Room',
-        text: `Meu agendamento para ${service.name} no Beauty Room está confirmado para ${dateParam} às ${timeParam}!`,
+        text: `Meu agendamento para ${serviceNames} no Beauty Room está confirmado para ${dateParam} às ${timeParam}!`,
         url: window.location.href
       }).catch(() => {});
     } else {
@@ -64,10 +82,10 @@
           <Sparkles size={24} />
         </div>
         <div class="highlight-info">
-          <h3>{service.name}</h3>
+          <h3>{serviceNames}</h3>
           <div class="meta-row">
             <span><CalendarCheck size={14} /> {dateParam}</span>
-            <span><Clock size={14} /> {timeParam} ({service.duration})</span>
+            <span><Clock size={14} /> {timeParam} ({totalDurationFormatted})</span>
           </div>
         </div>
       </div>
@@ -93,8 +111,8 @@
       <!-- Resumo Financeiro -->
       <div class="financial-block">
         <div class="fin-row">
-          <span>Valor Total do Procedimento:</span>
-          <span>R$ {service.price.toFixed(2).replace('.', ',')}</span>
+          <span>Valor Total dos Procedimentos:</span>
+          <span>R$ {priceTotal.toFixed(2).replace('.', ',')}</span>
         </div>
         <div class="fin-row paid">
           <span>Sinal Pago (30% de Reserva):</span>

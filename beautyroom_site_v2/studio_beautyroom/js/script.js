@@ -135,28 +135,32 @@ if (lightbox) {
       price: 140.00,
       sinal: 42.00,
       duration: '2h',
-      durationHours: 2.0
+      durationHours: 2.0,
+      durationMinutes: 120
     },
     'cilios-express': {
       name: 'Cílios Express',
       price: 100.00,
       sinal: 30.00,
       duration: '1h',
-      durationHours: 1.0
+      durationHours: 1.0,
+      durationMinutes: 60
     },
     'cilios-manutencao': {
       name: 'Manutenção de Cílios',
       price: 90.00,
       sinal: 27.00,
       duration: '1h',
-      durationHours: 1.0
+      durationHours: 1.0,
+      durationMinutes: 60
     },
     'cilios-lash-lifting': {
       name: 'Lash Lifting',
       price: 120.00,
       sinal: 36.00,
       duration: '1h30',
-      durationHours: 1.5
+      durationHours: 1.5,
+      durationMinutes: 90
     },
 
     // Sobrancelha
@@ -165,35 +169,40 @@ if (lightbox) {
       price: 35.00,
       sinal: 10.50,
       duration: '40m',
-      durationHours: 0.67
+      durationHours: 0.67,
+      durationMinutes: 40
     },
     'sobrancelha-henna': {
       name: 'Design + Henna',
       price: 60.00,
       sinal: 18.00,
       duration: '1h',
-      durationHours: 1.0
+      durationHours: 1.0,
+      durationMinutes: 60
     },
     'sobrancelha-reconstrucao': {
       name: 'Reconstrução de Sobrancelha',
       price: 90.00,
       sinal: 27.00,
       duration: '1h',
-      durationHours: 1.0
+      durationHours: 1.0,
+      durationMinutes: 60
     },
     'sobrancelha-brow-lamination': {
       name: 'Brow Lamination',
       price: 120.00,
       sinal: 36.00,
       duration: '1h30',
-      durationHours: 1.5
+      durationHours: 1.5,
+      durationMinutes: 90
     },
     'sobrancelha-micropigmentacao': {
       name: 'Micropigmentação de Sobrancelha',
       price: 290.00,
       sinal: 87.00,
       duration: '2h',
-      durationHours: 2.0
+      durationHours: 2.0,
+      durationMinutes: 120
     },
 
     // Lábios
@@ -202,28 +211,32 @@ if (lightbox) {
       price: 30.00,
       sinal: 9.00,
       duration: '30m',
-      durationHours: 0.5
+      durationHours: 0.5,
+      durationMinutes: 30
     },
     'labios-buco': {
       name: 'Buço',
       price: 20.00,
       sinal: 6.00,
       duration: '20m',
-      durationHours: 0.33
+      durationHours: 0.33,
+      durationMinutes: 20
     },
     'labios-hidracolor': {
       name: 'Hidracolor',
       price: 90.00,
       sinal: 27.00,
       duration: '40m',
-      durationHours: 0.67
+      durationHours: 0.67,
+      durationMinutes: 40
     },
     'labios-micropigmentacao': {
       name: 'Micropigmentação Labial',
       price: 290.00,
       sinal: 87.00,
       duration: '2h',
-      durationHours: 2.0
+      durationHours: 2.0,
+      durationMinutes: 120
     },
 
     // Combo
@@ -232,7 +245,8 @@ if (lightbox) {
       price: 180.00,
       sinal: 54.00,
       duration: '3h',
-      durationHours: 3.0
+      durationHours: 3.0,
+      durationMinutes: 180
     }
   };
 
@@ -255,7 +269,8 @@ if (lightbox) {
 
   // Estado do agendamento
   const state = {
-    serviceId: "cilios",
+    serviceId: "cilios-tradicionais",
+    serviceIds: ["cilios-tradicionais"],
     selectedDate: null,
     selectedTime: null,
     clientName: "",
@@ -322,7 +337,57 @@ if (lightbox) {
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
   const WEEKDAYS_PT = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-  const AVAILABLE_HOURS = ["09:00", "10:30", "13:00", "14:30", "16:00", "17:30"];
+
+  // Horários dinâmicos conforme o mês escolhido:
+  // Dezembro: das 08h00 às 20h00 em intervalos de 30 minutos
+  // Demais meses (Janeiro em diante): das 09h00 às 17h30 em intervalos de 30 minutos
+  function getAvailableHoursForDate(date) {
+    const isDecember = date ? date.getMonth() === 11 : new Date().getMonth() === 11;
+    const startHour = isDecember ? 8 : 9;
+    const endMinutesMax = isDecember ? 20 * 60 : 17 * 60 + 30;
+
+    const slots = [];
+    for (let m = startHour * 60; m <= endMinutesMax; m += 30) {
+      const h = Math.floor(m / 60);
+      const min = m % 60;
+      slots.push(`${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`);
+    }
+    return slots;
+  }
+
+  function getSelectedServicesList() {
+    const ids = state.serviceIds && state.serviceIds.length ? state.serviceIds : [state.serviceId || 'cilios-tradicionais'];
+    return ids.map((id) => SERVICES[id] || SERVICES['cilios-tradicionais']);
+  }
+
+  function getTotalDurationMinutes() {
+    const list = getSelectedServicesList();
+    return list.reduce((acc, s) => acc + (s.durationMinutes || (s.durationHours ? s.durationHours * 60 : 120)), 0);
+  }
+
+  function getTotalPrice() {
+    const list = getSelectedServicesList();
+    return list.reduce((acc, s) => acc + s.price, 0);
+  }
+
+  function getTotalSinal() {
+    const list = getSelectedServicesList();
+    return list.reduce((acc, s) => acc + s.sinal, 0);
+  }
+
+  function getSelectedServicesNames() {
+    const list = getSelectedServicesList();
+    return list.map((s) => s.name).join(" + ");
+  }
+
+  function getTotalDurationFormatted() {
+    const totalMin = getTotalDurationMinutes();
+    const hours = Math.floor(totalMin / 60);
+    const mins = totalMin % 60;
+    if (hours > 0 && mins > 0) return `${hours}h${mins}m`;
+    if (hours > 0) return `${hours}h`;
+    return `${mins}m`;
+  }
 
   // 1. Abertura e Fechamento do Modal
   function openModal(serviceId) {
@@ -466,9 +531,16 @@ if (lightbox) {
 
   // 3. Etapa 1: Seleção de Procedimento e Acordeão Interativo
   function updateServiceSummary() {
-    const current = SERVICES[state.serviceId] || SERVICES['cilios-tradicionais'];
+    const list = getSelectedServicesList();
+    const totalPrice = getTotalPrice();
+    const totalDuration = getTotalDurationFormatted();
     if (summaryServiceName) {
-      summaryServiceName.textContent = `${current.name} (R$ ${current.price.toFixed(2).replace(".", ",")})`;
+      if (list.length > 1) {
+        summaryServiceName.textContent = `${list.length} selecionados: ${getSelectedServicesNames()} (⏱ ${totalDuration} · R$ ${totalPrice.toFixed(2).replace(".", ",")})`;
+      } else {
+        const current = list[0] || SERVICES['cilios-tradicionais'];
+        summaryServiceName.textContent = `${current.name} (⏱ ${totalDuration} · R$ ${current.price.toFixed(2).replace(".", ",")})`;
+      }
     }
   }
 
@@ -498,10 +570,8 @@ if (lightbox) {
     btn.addEventListener("click", () => {
       const serviceId = btn.getAttribute("data-select-direct");
       state.serviceId = serviceId;
-      const radio = btn.querySelector('input[type="radio"]');
-      if (radio) radio.checked = true;
+      state.serviceIds = [serviceId];
 
-      // Desmarca outras seleções
       modal.querySelectorAll(".service-item-card").forEach(c => c.classList.remove("selected"));
       modal.querySelectorAll(".category-block").forEach(b => b.classList.remove("has-selection"));
       
@@ -512,21 +582,33 @@ if (lightbox) {
     });
   });
 
-  // Seleção de Procedimentos Internos
+  // Seleção de Procedimentos Internos (suporte a seleção de múltiplos serviços)
   modal.querySelectorAll(".service-item-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      const radio = card.querySelector('input[type="radio"]');
-      if (radio) {
-        radio.checked = true;
-        state.serviceId = radio.value;
+    card.addEventListener("click", (e) => {
+      const input = card.querySelector('input');
+      const val = input ? input.value : card.getAttribute("data-service-id");
+      if (!val) return;
+
+      if (!state.serviceIds) state.serviceIds = [];
+
+      if (state.serviceIds.includes(val)) {
+        if (state.serviceIds.length > 1) {
+          state.serviceIds = state.serviceIds.filter(id => id !== val);
+          card.classList.remove("selected");
+        }
+      } else {
+        state.serviceIds.push(val);
+        card.classList.add("selected");
       }
 
-      modal.querySelectorAll(".service-item-card").forEach(c => c.classList.remove("selected"));
-      modal.querySelectorAll(".category-block").forEach(b => b.classList.remove("has-selection"));
+      state.serviceId = state.serviceIds[0];
+      state.selectedTime = null; // Revalida horários ao mudar procedimentos
 
-      card.classList.add("selected");
-      const parentBlock = card.closest(".category-block");
-      if (parentBlock) parentBlock.classList.add("has-selection");
+      // Atualiza blocos de categoria com seleção
+      modal.querySelectorAll(".category-block").forEach(b => {
+        const has = b.querySelectorAll(".service-item-card.selected").length > 0;
+        b.classList.toggle("has-selection", has);
+      });
 
       updateServiceSummary();
     });
@@ -625,16 +707,20 @@ if (lightbox) {
   }
 
   // Verifica se um determinado horário (ex: "09:00") colide com algum evento da Google Agenda
+  // considerando a soma total dos tempos de todos os procedimentos selecionados
   function isSlotOverlappingGoogleEvents(hourStr, datePrefix) {
-    const events = liveBusySlotsByDate[datePrefix];
-    if (!events || !events.length) return false;
-
     const parts = hourStr.split(":");
     const slotStartMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
-    // Duração estimada do serviço selecionado
-    const service = SERVICES[state.serviceId] || SERVICES['cilios-tradicionais'];
-    const durationHours = service.durationHours || 2.0;
-    const slotEndMin = slotStartMin + durationHours * 60;
+    const totalDurationMin = getTotalDurationMinutes();
+    const slotEndMin = slotStartMin + totalDurationMin;
+
+    // Impede agendamento que ultrapasse o horário limite de atendimento
+    const isDecember = state.selectedDate ? state.selectedDate.getMonth() === 11 : false;
+    const maxCloseMin = isDecember ? 20 * 60 : 17 * 60 + 30;
+    if (slotEndMin > maxCloseMin) return true;
+
+    const events = liveBusySlotsByDate[datePrefix];
+    if (!events || !events.length) return false;
 
     return events.some((ev) => {
       if (ev.allDay) return true;
@@ -696,8 +782,9 @@ if (lightbox) {
     const d = state.selectedDate;
     const datePrefix = d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : "";
     const bookedList = getBookedSlots();
+    const availableSlots = getAvailableHoursForDate(d);
 
-    AVAILABLE_HOURS.forEach((hour) => {
+    availableSlots.forEach((hour) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "slot-btn";
@@ -711,7 +798,7 @@ if (lightbox) {
       if (isBooked) {
         btn.disabled = true;
         btn.classList.add("slot-occupied");
-        btn.title = "Horário indisponível (já agendado ou bloqueado na Google Agenda)";
+        btn.title = "Horário indisponível para o tempo total dos procedimentos";
         btn.textContent = `${hour} (Ocupado)`;
       } else {
         if (state.selectedTime === hour) {
@@ -921,9 +1008,9 @@ if (lightbox) {
 
   // 7. Etapa 4: Setup do Checkout PIX Sinal 30%
   function setupPixCheckout() {
-    const service = SERVICES[state.serviceId] || SERVICES.cilios;
-    const total = service.price;
-    const sinal = service.sinal;
+    const serviceNames = getSelectedServicesNames();
+    const total = getTotalPrice();
+    const sinal = getTotalSinal();
     const balance = total - sinal;
 
     const d = state.selectedDate;
@@ -932,7 +1019,7 @@ if (lightbox) {
       : "Data a definir";
 
     // Preenche resumo visual
-    if (pixServiceTitle) pixServiceTitle.textContent = service.name;
+    if (pixServiceTitle) pixServiceTitle.textContent = serviceNames;
     if (pixDateTimeText) pixDateTimeText.textContent = `${formattedDate} às ${state.selectedTime || "14:00"}`;
     if (pixClientName) pixClientName.textContent = state.clientName;
     if (pixTotalValue) pixTotalValue.textContent = `R$ ${total.toFixed(2).replace(".", ",")}`;
@@ -968,7 +1055,8 @@ if (lightbox) {
     const msg = [
       "Olá! Realizei o agendamento no site da Beauty Room:",
       "",
-      `• *Procedimento:* ${service.name}`,
+      `• *Procedimento(s):* ${serviceNames}`,
+      `• *Duração Estimada:* ${getTotalDurationFormatted()}`,
       `• *Data e Horário:* ${formattedDate} às ${state.selectedTime}`,
       `• *Cliente:* ${state.clientName}`,
       `• *WhatsApp:* ${state.clientPhone}`,
@@ -1011,17 +1099,22 @@ if (lightbox) {
     const day = String(d.getDate()).padStart(2, "0");
     const isoDate = `${year}-${month}-${day}`;
 
+    const serviceNames = getSelectedServicesNames();
+    const totalPrice = getTotalPrice();
+    const totalSinal = getTotalSinal();
+    const totalDurationMin = getTotalDurationMinutes();
+
     const payload = {
       date: isoDate,
       time: state.selectedTime,
-      durationHours: service.durationHours || 2,
-      serviceName: service.name,
+      durationHours: (totalDurationMin / 60).toFixed(2),
+      serviceName: serviceNames,
       clientName: state.clientName,
       clientPhone: state.clientPhone,
       clientNotes: state.clientNotes || "",
-      priceTotal: service.price.toFixed(2).replace(".", ","),
-      sinalValue: service.sinal.toFixed(2).replace(".", ","),
-      balanceValue: (service.price - service.sinal).toFixed(2).replace(".", ",")
+      priceTotal: totalPrice.toFixed(2).replace(".", ","),
+      sinalValue: totalSinal.toFixed(2).replace(".", ","),
+      balanceValue: (totalPrice - totalSinal).toFixed(2).replace(".", ",")
     };
 
     const statusEl = document.getElementById("pixAgendaStatus");
