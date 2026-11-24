@@ -38,23 +38,15 @@
   }>();
 
   // Lista de procedimentos selecionados (permite selecionar mais de um)
-  let selectedServiceIds = $state<string[]>([selectedServiceId]);
-
-  // Sincroniza caso o prop selectedServiceId mude externamente
-  $effect(() => {
-    if (selectedServiceId && !selectedServiceIds.includes(selectedServiceId)) {
-      selectedServiceIds = [selectedServiceId];
-    }
-  });
+  let selectedServiceIds = $state<string[]>([selectedServiceId || "cilios-tradicionais"]);
 
   function toggleServiceSelection(serviceId: string) {
     if (selectedServiceIds.includes(serviceId)) {
-      // Se tiver mais de um selecionado, remove; se for o único, mantém para não ficar vazio
+      // Se tiver mais de um selecionado, desmarca; se for o único, mantém para não ficar sem nenhum
       if (selectedServiceIds.length > 1) {
         selectedServiceIds = selectedServiceIds.filter((id) => id !== serviceId);
       }
     } else {
-      // Se selecionou um combo direto, limpa os demais ou adiciona
       selectedServiceIds = [...selectedServiceIds, serviceId];
     }
     selectedServiceId = selectedServiceIds[0];
@@ -758,18 +750,19 @@
                       <div class="category-items-grid">
                         {#each cat.services as service}
                           {@const isSelected = selectedServiceIds.includes(service.id)}
-                          <label
+                          <div
                             class="service-item-card {isSelected
                               ? 'selected'
                               : ''}"
+                            role="button"
+                            tabindex="0"
+                            onclick={() => toggleServiceSelection(service.id)}
+                            onkeydown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                toggleServiceSelection(service.id);
+                              }
+                            }}
                           >
-                            <input
-                              type="checkbox"
-                              name="bookingService"
-                              value={service.id}
-                              checked={isSelected}
-                              onchange={() => toggleServiceSelection(service.id)}
-                            />
                             <div class="item-card-inner">
                               <div class="item-card-header">
                                 <div class="item-name-wrap">
@@ -813,7 +806,7 @@
                                 </div>
                               </div>
                             </div>
-                          </label>
+                          </div>
                         {/each}
                       </div>
                     </div>
@@ -1731,12 +1724,6 @@
   .service-item-card {
     cursor: pointer;
     display: block;
-  }
-
-  .service-item-card input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
   }
 
   .item-card-inner {

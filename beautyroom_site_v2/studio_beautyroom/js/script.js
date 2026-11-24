@@ -585,6 +585,9 @@ if (lightbox) {
   // Seleção de Procedimentos Internos (suporte a seleção de múltiplos serviços)
   modal.querySelectorAll(".service-item-card").forEach((card) => {
     card.addEventListener("click", (e) => {
+      // Se clicou direto no input, não reprocessa
+      if (e.target && e.target.tagName.toLowerCase() === "input") return;
+
       const input = card.querySelector('input');
       const val = input ? input.value : card.getAttribute("data-service-id");
       if (!val) return;
@@ -595,10 +598,12 @@ if (lightbox) {
         if (state.serviceIds.length > 1) {
           state.serviceIds = state.serviceIds.filter(id => id !== val);
           card.classList.remove("selected");
+          if (input) input.checked = false;
         }
       } else {
         state.serviceIds.push(val);
         card.classList.add("selected");
+        if (input) input.checked = true;
       }
 
       state.serviceId = state.serviceIds[0];
