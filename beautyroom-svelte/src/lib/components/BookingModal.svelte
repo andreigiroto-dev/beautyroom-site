@@ -116,6 +116,31 @@
     return slots;
   }
 
+  // Calcula o horário de término previsto baseado na soma das durações
+  function getSlotEndTime(startHour: string): string {
+    const parts = startHour.split(":");
+    const startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    const endMin = startMin + totalDurationMinutes;
+    const h = Math.floor(endMin / 60);
+    const m = endMin % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  }
+
+  // Separa os horários em Manhã (antes das 12h) e Tarde/Noite (12h em diante)
+  function groupSlotsByPeriod(hours: string[]) {
+    const morning: string[] = [];
+    const afternoon: string[] = [];
+    hours.forEach((h) => {
+      const hourNum = parseInt(h.split(":")[0], 10);
+      if (hourNum < 12) {
+        morning.push(h);
+      } else {
+        afternoon.push(h);
+      }
+    });
+    return { morning, afternoon };
+  }
+
   let bookedSlots = $state<string[]>([]);
 
   // Estado do Cartão / Mercado Pago
@@ -914,29 +939,93 @@
                     </small>
                   {/if}
                 </h4>
-                <div class="slots-grid">
-                  {#if selectedDate}
-                    {@const datePrefix = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`}
-                    {@const dailyHours = getAvailableHoursForDate(selectedDate)}
-                    {#each dailyHours as hour}
-                      {@const slotKey = `${datePrefix}_${hour}`}
-                      {@const isOccupied =
-                        bookedSlots.includes(slotKey) || isSlotGoogleBusy(hour)}
-                      <button
-                        type="button"
-                        class="slot-btn {selectedTime === hour
-                          ? 'active'
-                          : ''} {isOccupied ? 'slot-occupied' : ''}"
-                        disabled={isOccupied}
-                        title={isOccupied ? "Horário indisponível para o tempo total dos procedimentos" : `Disponível para ${totalDurationFormatted}`}
-                        onclick={() => (selectedTime = hour)}
-                      >
-                        {hour}
-                        {isOccupied ? "(Ocupado)" : ""}
-                      </button>
-                    {/each}
+
+                {#if selectedTime}
+                  <div class="selected-time-banner">
+                    <span class="banner-icon">✓</span>
+                    <div class="banner-text">
+                      <strong>Horário escolhido:</strong>
+                      <span>{selectedTime} às {getSlotEndTime(selectedTime)}</span>
+                      <small>({totalDurationFormatted})</small>
+                    </div>
+                  </div>
+                {/if}
+
+                {#if selectedDate}
+                  {@const datePrefix = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`}
+                  {@const dailyHours = getAvailableHoursForDate(selectedDate)}
+                  {@const periods = groupSlotsByPeriod(dailyHours)}
+
+                  <!-- Período da Manhã -->
+                  {#if periods.morning.length > 0}
+                    <div class="slot-period-group">
+                      <div class="slot-period-header">
+                        <span class="period-dot morning"></span>
+                        <span class="period-title">Manhã</span>
+                      </div>
+                      <div class="slots-grid">
+                        {#each periods.morning as hour}
+                          {@const slotKey = `${datePrefix}_${hour}`}
+                          {@const isOccupied =
+                            bookedSlots.includes(slotKey) || isSlotGoogleBusy(hour)}
+                          {@const endTime = getSlotEndTime(hour)}
+                          <button
+                            type="button"
+                            class="slot-btn {selectedTime === hour
+                              ? 'active'
+                              : ''} {isOccupied ? 'slot-occupied' : ''}"
+                            disabled={isOccupied}
+                            title={isOccupied
+                              ? "Horário indisponível para o tempo total dos procedimentos"
+                              : `Das ${hour} às ${endTime} (${totalDurationFormatted})`}
+                            onclick={() => (selectedTime = hour)}
+                          >
+                            <span class="slot-start">{hour}</span>
+                            <span class="slot-range">
+                              {isOccupied ? "Ocupado" : `até ${endTime}`}
+                            </span>
+                          </button>
+                        {/each}
+                      </div>
+                    </div>
                   {/if}
-                </div>
+
+                  <!-- Período da Tarde / Noite -->
+                  {#if periods.afternoon.length > 0}
+                    <div class="slot-period-group">
+                      <div class="slot-period-header">
+                        <span class="period-dot afternoon"></span>
+                        <span class="period-title">Tarde / Noite</span>
+                      </div>
+                      <div class="slots-grid">
+                        {#each periods.afternoon as hour}
+                          {@const slotKey = `${datePrefix}_${hour}`}
+                          {@const isOccupied =
+                            bookedSlots.includes(slotKey) || isSlotGoogleBusy(hour)}
+                          {@const endTime = getSlotEndTime(hour)}
+                          <button
+                            type="button"
+                            class="slot-btn {selectedTime === hour
+                              ? 'active'
+                              : ''} {isOccupied ? 'slot-occupied' : ''}"
+                            disabled={isOccupied}
+                            title={isOccupied
+                              ? "Horário indisponível para o tempo total dos procedimentos"
+                              : `Das ${hour} às ${endTime} (${totalDurationFormatted})`}
+                            onclick={() => (selectedTime = hour)}
+                          >
+                            <span class="slot-start">{hour}</span>
+                            <span class="slot-range">
+                              {isOccupied ? "Ocupado" : `até ${endTime}`}
+                            </span>
+                          </button>
+                        {/each}
+                      </div>
+                    </div>
+                  {/if}
+                {:else}
+                  <p class="no-date-selected">Selecione um dia no calendário ao lado para ver os horários livres.</p>
+                {/if}
               </div>
             </div>
 
@@ -2000,41 +2089,159 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 16px;
+    max-height: 440px;
+    overflow-y: auto;
   }
   .slots-box h4 {
-    margin: 0 0 12px;
+    margin: 0 0 8px;
     font-size: 13px;
     color: var(--espresso);
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
   }
+
+  .selected-time-banner {
+    background: rgba(189, 150, 94, 0.12);
+    border: 1px solid var(--gold);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .banner-icon {
+    width: 20px;
+    height: 20px;
+    background: var(--gold);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .banner-text {
+    font-size: 12px;
+    color: var(--espresso);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .banner-text strong {
+    color: var(--espresso);
+  }
+  .banner-text span {
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .banner-text small {
+    color: var(--muted);
+  }
+
+  .slot-period-group {
+    margin-bottom: 14px;
+  }
+  .slot-period-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .period-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+  .period-dot.morning {
+    background: #e69d24;
+  }
+  .period-dot.afternoon {
+    background: #8e44ad;
+  }
+  .period-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--espresso);
+    opacity: 0.8;
+  }
+
   .slots-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
   .slot-btn {
-    padding: 10px;
+    padding: 8px 10px;
     border: 1px solid var(--line);
     background: var(--ivory);
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 11.5px;
-    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: all 0.2s ease;
+  }
+  .slot-btn:hover:not(:disabled) {
+    border-color: var(--gold);
+    background: #fff;
+    transform: translateY(-1px);
+  }
+  .slot-start {
+    font-size: 12.5px;
+    font-weight: 700;
     color: var(--espresso);
   }
+  .slot-range {
+    font-size: 9.5px;
+    color: var(--brown);
+    opacity: 0.85;
+  }
   .slot-btn.active {
-    background: var(--gold);
-    color: white;
-    border-color: var(--gold);
+    background: var(--espresso);
+    border-color: var(--espresso);
+    box-shadow: 0 4px 12px rgba(62, 42, 32, 0.2);
+  }
+  .slot-btn.active .slot-start {
+    color: var(--gold-light);
+  }
+  .slot-btn.active .slot-range {
+    color: #fff;
+    opacity: 0.9;
   }
   .slot-btn.slot-occupied,
   .slot-btn:disabled {
     background: #f1ede6 !important;
-    color: #a89f92 !important;
+    border-color: rgba(62, 42, 32, 0.08) !important;
     cursor: not-allowed !important;
+    opacity: 0.55;
+    box-shadow: none;
+    transform: none;
+  }
+  .slot-btn.slot-occupied .slot-start,
+  .slot-btn:disabled .slot-start {
+    color: #a89f92 !important;
     text-decoration: line-through;
-    opacity: 0.6;
+  }
+  .slot-btn.slot-occupied .slot-range,
+  .slot-btn:disabled .slot-range {
+    color: #c0392b !important;
+    font-weight: 600;
+  }
+  .no-date-selected {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    padding: 24px 0;
   }
 
   /* Formulário de Contato */
